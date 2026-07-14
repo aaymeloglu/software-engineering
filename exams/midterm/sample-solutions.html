@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page {
+    size: letter;
+    margin: 0.85in 0.9in 0.9in 0.9in;
+  }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.45;
+    color: #111;
+  }
+  h1 {
+    font-size: 22pt;
+    margin: 0 0 0.1em 0;
+    border-bottom: 2px solid #333;
+    padding-bottom: 0.25em;
+  }
+  .subtitle {
+    font-size: 12pt;
+    color: #555;
+    margin-top: 0.2em;
+    margin-bottom: 1.4em;
+  }
+  h2 { font-size: 13pt; }
+  code {
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 9.8pt;
+    background: #f1f1f4;
+    padding: 0.08em 0.3em;
+    border-radius: 3px;
+  }
+  pre {
+    background: #f1f1f4;
+    padding: 0.6em 0.85em;
+    border-radius: 4px;
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 9pt;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    margin: 0.5em 0;
+  }
+  ol, ul { margin: 0.5em 0 0.5em 1.2em; padding-left: 0.7em; }
+  li { margin-bottom: 0.35em; }
+  p { orphans: 3; widows: 3; }
+  .sol {
+    page-break-before: always;
+  }
+  .sol:first-of-type {
+    page-break-before: auto;
+  }
+  .sol h2 {
+    font-size: 13pt;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 0.2em;
+    margin-top: 0.3em;
+    margin-bottom: 0.5em;
+  }
+  .key-label {
+    display: inline-block;
+    background: #fef3c7;
+    border: 1px solid #d97706;
+    color: #78350f;
+    padding: 0.1em 0.5em;
+    font-size: 9pt;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.4em;
+  }
+  .intro { color: #444; font-size: 10.5pt; margin-bottom: 1.4em; }
+</style>
+</head>
+<body>
+
+<h1>Midterm &mdash; Sample Exam Solutions</h1>
+<p class="subtitle">Software Engineering &mdash; UATX &mdash; Spring 2026</p>
+
+<p class="intro">Solutions and grading rubrics for the five sample questions. Try the questions cold first; the rubrics show what counts as a strong answer versus a partial one. Most questions have several valid approaches &mdash; the model answers below are one good version, not the only one.</p>
+
+
+<!-- ============================================================== -->
+<!-- SOLUTION 1                                                     -->
+<!-- ============================================================== -->
+
+<div class="sol">
+<span class="key-label">Question 1 &mdash; Solution</span>
+<h2>JSON file, read-modify-write</h2>
+
+<p><strong>A:</strong> <code>2</code>. After two <code>add()</code> calls, the file holds <code>a, b</code>.</p>
+<p><strong>B:</strong> <code>2</code>. <code>x.append(...)</code> mutates the local list <code>x</code>, but <code>load()</code> re-reads the file each time and gets back the original two items. <em>Why:</em> <code>load()</code> always re-reads from disk and returns a fresh list; in-memory mutations are not persisted unless explicitly written.</p>
+<p><strong>C:</strong> <code>3</code>. <code>save(x)</code> writes the list (now of length 3) back to disk.</p>
+<p><strong>D:</strong> <code>False</code>. <code>y[0]["done"] = True</code> mutates a local list (a fresh <code>load()</code> result). Then <code>add("d")</code> internally does its own <code>load()</code> &mdash; getting a copy without <code>y</code>'s mutation &mdash; appends <code>d</code>, and writes that back to disk. <code>y</code>'s mutation never reaches the file. <em>Why:</em> the read-modify-write trap from class &mdash; the second writer overwrites the first writer's local change.</p>
+<p><strong>E:</strong> <code>['a', 'b', 'c', 'd']</code>.</p>
+
+<p>D is the trap. The intuitive (wrong) answer is to think <code>y</code> is some kind of live reference into the file, so <code>y[0]["done"] = True</code> persists. It doesn't &mdash; <code>y</code> is just a plain Python list returned by <code>load()</code>, completely independent of the file once read. The next writer (<code>add("d")</code>) does its own <code>load()</code>, doesn't see your local change, and overwrites it on save.</p>
+
+<p><strong>Rubric (10 pts):</strong> 1 each for A, B, C, E (4 pts). 2 for D's value, 2 for D's explanation. 2 for B's explanation.</p>
+</div>
+
+
+<!-- ============================================================== -->
+<!-- SOLUTION 2                                                     -->
+<!-- ============================================================== -->
+
+<div class="sol">
+<span class="key-label">Question 2 &mdash; Solution</span>
+<h2>List-posts endpoint defects</h2>
+
+<p>At least five real defects. Full credit for finding four; partial for fewer.</p>
+
+<ol>
+  <li><strong>SQL injection via <code>q</code>.</strong> The <code>q</code> parameter is concatenated into the SQL with no escaping.
+    <ul>
+      <li>(a) <code>?q=' OR '1'='1</code></li>
+      <li>(b) Final SQL becomes <code>... WHERE body LIKE '%' OR '1'='1%'</code> &mdash; returns every row regardless of search term.</li>
+      <li>(c) Use a bound parameter: <code>... WHERE body LIKE :pattern</code> with <code>{"pattern": f"%{q}%"}</code>.</li>
+    </ul>
+  </li>
+  <li><strong>LIKE wildcard injection.</strong> Even after fixing the SQL injection, the user controls the LIKE wildcard characters <code>%</code> and <code>_</code> by including them in <code>q</code>.
+    <ul>
+      <li>(a) <code>?q=%</code> (a single percent sign, nothing else)</li>
+      <li>(b) The code wraps <code>q</code> as <code>'%' + q + '%'</code>, so the pattern becomes <code>'%%%'</code>. In SQL, <code>%</code> is the LIKE wildcard meaning "any sequence of characters," so this pattern matches every row in the table &mdash; the search filter is gone. Parameter binding (the fix for the previous defect) doesn't help here, because the wildcard is the literal value the user submitted.</li>
+      <li>(c) Before wrapping, escape <code>%</code> and <code>_</code> in <code>q</code> (e.g. replace <code>%</code> with <code>\%</code>) and add <code>ESCAPE '\\'</code> to the LIKE clause.</li>
+    </ul>
+  </li>
+  <li><strong>No upper bound on <code>limit</code>.</strong>
+    <ul>
+      <li>(a) <code>?limit=10000000</code></li>
+      <li>(b) Server tries to read 10M rows in one shot &mdash; memory blows up; trivial DoS.</li>
+      <li>(c) Cap <code>limit</code> (e.g. <code>min(limit, 200)</code>); reject obviously bad values.</li>
+    </ul>
+  </li>
+  <li><strong><code>page=0</code> or negative pages produce a negative offset.</strong>
+    <ul>
+      <li>(a) <code>?page=0</code> or <code>?page=-2</code></li>
+      <li>(b) Computed offset is negative; SQLite silently treats negative OFFSET as 0, so page 0 and page 1 return the same data &mdash; pagination is wrong.</li>
+      <li>(c) Validate <code>page &ge; 1</code> via <code>Query(..., ge=1)</code>.</li>
+    </ul>
+  </li>
+  <li><strong>Negative <code>limit</code>.</strong>
+    <ul>
+      <li>(a) <code>?limit=-1</code></li>
+      <li>(b) SQLite treats negative LIMIT as "no limit" &mdash; returns the entire table.</li>
+      <li>(c) Validate <code>limit &ge; 1</code> as well as the upper bound.</li>
+    </ul>
+  </li>
+</ol>
+
+<p>Other defects worth flagging (and credited if you found them): no <code>response_model</code>, so the response shape is whatever the DB happens to return; raw <code>body</code> exposed without consideration of soft-deleted or admin-flagged posts; no auth check on what should arguably be a private feed.</p>
+
+<p><strong>Rubric (10 pts):</strong> 2 pts per distinct defect with all three parts (a/b/c), capped at 8 points. 2 bonus pts for finding either the LIKE wildcard or the negative-limit issue (the two non-obvious ones). Total capped at ten.</p>
+</div>
+
+
+<!-- ============================================================== -->
+<!-- SOLUTION 3                                                     -->
+<!-- ============================================================== -->
+
+<div class="sol">
+<span class="key-label">Question 3 &mdash; Solution</span>
+<h2>Photo album sharing API</h2>
+
+<p>Many valid answers; the rubric is on completeness and judgment.</p>
+
+<p><strong>Endpoints (a reasonable answer):</strong></p>
+<pre>POST   /api/albums                      201 + Album,  400 invalid body
+GET    /api/albums                      200 + list[Album]
+GET    /api/albums/{id}                  200 + Album,  404
+DELETE /api/albums/{id}                  204,  404
+POST   /api/albums/{id}/photos          201 + Photo,  404 album not found,  400 bad upload
+DELETE /api/albums/{id}/photos/{pid}    204,  404
+POST   /api/albums/{id}/share           201 + ShareLink,  404,  409 already shared
+DELETE /api/albums/{id}/share           204,  404
+GET    /shared/{token}                  200 + AlbumView (no auth required),  404 / 410 if revoked</pre>
+<p>Strong answers nest photos under albums (the URL structure shows the relationship), use <code>POST</code> for share generation (since each call may produce a new token), and use <code>DELETE</code> for revoke.</p>
+
+<p><strong>Idempotence:</strong> The cleanest example is <code>DELETE /api/albums/{id}/share</code> (revoke) &mdash; revoking twice is a no-op (or returns 404), and a retry under a flaky network can't accidentally do more than one revoke. By contrast, <code>POST /api/albums</code> is NOT idempotent &mdash; retries create duplicate albums. Either example is a fine answer as long as you state the reason.</p>
+
+<p><strong>Design call (good answers):</strong></p>
+<ul>
+  <li>"Share link uses a UUID, not the album ID, so the URL is unguessable."</li>
+  <li>"Revoking a share link generates a new token next time you share &mdash; old URLs stay 410-Gone forever."</li>
+  <li>"<code>GET /shared/{token}</code> returns the album in a 'view-only' shape (no edit affordances, no other-user data) instead of the full <code>Album</code>."</li>
+  <li>"Photos belong to one album &mdash; we don't support a photo in multiple albums."</li>
+</ul>
+
+<p><strong>Rubric (10 pts):</strong> 5 endpoints (need at least 6 of the listed; status codes for success and failure). 3 idempotence question. 2 design call (must be non-obvious).</p>
+</div>
+
+
+<!-- ============================================================== -->
+<!-- SOLUTION 4                                                     -->
+<!-- ============================================================== -->
+
+<div class="sol">
+<span class="key-label">Question 4 &mdash; Solution</span>
+<h2><code>flag_expired</code>: loop vs comprehension</h2>
+
+<p><strong>Version B is correct, and there is a real bug in A.</strong></p>
+
+<p>The bug: Version A mutates the input. <code>items[i]["expired"] = True</code> sets the key on the ORIGINAL dict in the input list, not a copy. The caller's <code>items</code> list now has <code>expired: True</code> on the matched dicts, even though the function only "promised" to return a filtered list. This bites a caller who calls <code>flag_expired</code> twice or who relies on the original list being unchanged.</p>
+
+<p>Version B uses dict unpacking (<code>{**item, "expired": True}</code>) to build NEW dicts, leaving the original untouched.</p>
+
+<p>Other reasons B wins (after the bug is named): more readable, no manual index, no accumulator list, harder to write the wrong loop bound, and the "filter-and-transform" comprehension is the idiomatic Python shape for deriving a new collection from an existing one without altering the source.</p>
+
+<p>The strongest answer flags the mutation explicitly. Picking B for "it's more readable" and missing the mutation only gets you partial credit.</p>
+
+<p><strong>Rubric (10 pts):</strong> 2 picking B, 4 for calling out the mutation bug (2 noticing, 2 explaining what breaks), 2 for a second specific reason, 2 for quality of writing. Ceiling is 5/10 if you don't name the mutation.</p>
+</div>
+
+
+<!-- ============================================================== -->
+<!-- SOLUTION 5                                                     -->
+<!-- ============================================================== -->
+
+<div class="sol">
+<span class="key-label">Question 5 &mdash; Solution</span>
+<h2>Order placement, idempotence, retries</h2>
+
+<p><strong>PATCH on a specific shipping address is idempotent</strong>: applying the same shipping update twice leaves the order in the same final state. <strong>POST is not</strong>: each retry creates a new order, charges payment again, and decrements inventory again. A flaky network turns one order into two or three, with the customer charged each time.</p>
+
+<p><strong>The fix for POST:</strong> have the client generate a unique id per send-attempt (a UUID) and let the server use it to deduplicate retries. Two clean ways to do this:</p>
+<ol>
+  <li>Switch the URL shape to <code>PUT /api/orders/{client_uuid}</code>, where the client supplies the id. The first <code>PUT</code> creates the order at that id; a retry hits the same row and is a no-op (or returns the same order). The endpoint is now naturally idempotent because the resource id is fixed by the client.</li>
+  <li>Keep <code>POST /api/orders</code> but require the client to send the UUID in the request body (e.g. <code>{"client_request_id": "...", "items": [...]}</code>). The server stores the id alongside the resulting order; on a second request with the same id, it returns the existing order without re-charging or re-decrementing. (Stripe's API uses this pattern via their idempotency keys; their dedup window is 24 hours.)</li>
+</ol>
+
+<p>Either move solves the problem. The principle is the same: the client picks something stable that survives retries, and the server uses it to recognize "this is the same request twice," not "this is two different requests."</p>
+
+<p>One trap to avoid: don't conflate idempotence with safety. <code>GET</code> is both safe (no side effects) and idempotent. <code>PUT</code> and <code>DELETE</code> are idempotent but not safe. <code>POST</code> is neither &mdash; which is why naked <code>POST</code> + retry is the dangerous combination here.</p>
+
+<p><strong>Rubric (10 pts):</strong> 3 correctly identifying which is idempotent (must reason, not just guess), 2 explaining what specifically breaks on POST retry (double-charge, double-decrement), 4 the design fix (must name a client-supplied id used for dedup &mdash; either as the URL slug or in the body; no credit for vague "retry once"), 1 the operational detail (e.g. dedup window, what the server stores).</p>
+</div>
+
+</body>
+</html>

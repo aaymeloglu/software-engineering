@@ -1,0 +1,77 @@
+# Grading harness configuration - PUBLIC TEMPLATE.
+#
+# Copy this to `config.yaml` (gitignored) and edit for your own course. Everything
+# the harness needs to know about *your* cohort lives here, so the harness code
+# itself carries no references to any specific class, repo, or student.
+#
+#   cp config.example.yaml config.yaml
+#   cp roster.example.yaml  roster.yaml
+#   # edit both, then run:  python run.py a2
+
+# ---------------------------------------------------------------------------
+# Where the harness reads submissions from.
+# A local path to a clone of the class submission repo (students push branches /
+# open PRs against it). The harness only ever *reads* this repo.
+# ---------------------------------------------------------------------------
+class_repo: ~/git/your-class-repo
+
+# Roster file (student handle -> name/email). Keep the real one gitignored.
+roster: roster.yaml
+
+# ---------------------------------------------------------------------------
+# How each assignment's submissions map onto branches / tags / paths in the
+# class repo. `{handle}` is substituted with each student's GitHub handle.
+# Delete assignments you don't use; add your own the same way.
+# ---------------------------------------------------------------------------
+assignments:
+  a2:
+    entry_file: main.py
+    submission_path: assignments/bbs-webserver/{handle}
+    branch_pattern: origin/bbs-webserver-{handle}
+
+  a3:
+    # Phase-tagged assignment: prefer submit tags, fall back to the branch.
+    phase1_tag: phase-1-submit-{handle}
+    phase2_tag: phase-2-submit-{handle}
+    branch_pattern: origin/a3-testing-{handle}
+    submission_path: assignments/a3-testing/{handle}
+    # A3 grades student tests against reference bug-modules + a reference test
+    # suite (the assignment's answer key). Point this at your copy of the A3
+    # reference materials (starter/modules, reference/tests, starter/conftest.py).
+    reference_root: ~/your-class-repo/assignment3
+
+  a4:
+    # Frontend + its own backend; backend may live on a different branch.
+    frontend_branch: origin/bbs-frontend-{handle}
+    backend_path: assignments/bbs-webserver/{handle}
+
+# ---------------------------------------------------------------------------
+# Per-student overrides for anyone who deviated from the branch convention
+# (put their backend on a differently-named branch, nested their entry file,
+# renamed their submission dir, etc.). Keyed by GitHub handle.
+#
+# This is the *only* place student-specific knobs belong - never hard-code them
+# in the harness. Leave empty if everyone followed the convention.
+# ---------------------------------------------------------------------------
+overrides: {}
+  # example-handle:
+  #   a4_backend_ref: origin/some-other-branch   # backend not on the A4 branch
+  #   note: "why this override exists"
+
+# ---------------------------------------------------------------------------
+# Point weights per assignment bucket. These are ILLUSTRATIVE placeholders - 
+# students only ever saw the bucket names and the 50-pt total, never the
+# per-bucket split. Set your own here; keep the real split in config.yaml
+# (gitignored) if you want to retain the grading lever.
+# ---------------------------------------------------------------------------
+weights:
+  a2:
+    bronze: 20
+    style: 10
+    silver: 10
+    gold: 10
+  a4:
+    bronze: 20
+    style: 10
+    silver: 10
+    gold: 10

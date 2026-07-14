@@ -1,0 +1,14 @@
+# The real cohort never gets committed. Only the *.example.* templates do.
+config.yaml
+roster.yaml
+
+# Per-student materialized code and generated reports - student work, never public.
+work/
+reports/
+
+# Harness scratch
+.harness-venv/
+venvs/
+__pycache__/
+*.pyc
+.DS_Store

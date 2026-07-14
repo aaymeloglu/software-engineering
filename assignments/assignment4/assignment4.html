@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page {
+    size: letter;
+    margin: 1in;
+  }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: #1a1a1a;
+  }
+  h1 {
+    font-size: 22pt;
+    margin-bottom: 0.1em;
+    border-bottom: 2px solid #333;
+    padding-bottom: 0.3em;
+  }
+  .subtitle {
+    font-size: 13pt;
+    color: #555;
+    margin-top: 0;
+    margin-bottom: 2em;
+  }
+  h2 {
+    font-size: 15pt;
+    margin-top: 1.5em;
+    color: #2a2a2a;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 12pt;
+    margin-top: 1.2em;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  code {
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 10pt;
+    background: #f0f0f4;
+    padding: 0.15em 0.35em;
+    border-radius: 3px;
+  }
+  pre {
+    background: #f0f0f4;
+    padding: 0.8em 1em;
+    border-radius: 5px;
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 10pt;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .callout {
+    background: #eef4ff;
+    border-left: 4px solid #3b82f6;
+    padding: 0.8em 1em;
+    margin: 1em 0;
+    border-radius: 0 5px 5px 0;
+  }
+  .callout-warn {
+    background: #fef9ee;
+    border-left: 4px solid #f59e0b;
+    padding: 0.8em 1em;
+    margin: 1em 0;
+    border-radius: 0 5px 5px 0;
+  }
+  .tier {
+    margin: 0.8em 0;
+    padding: 0.6em 1em;
+    border-radius: 5px;
+  }
+  .tier-bronze { background: #fdf2e9; border-left: 4px solid #cd7f32; }
+  .tier-silver { background: #f4f4f4; border-left: 4px solid #a0a0a0; }
+  .tier-gold   { background: #fef9e7; border-left: 4px solid #d4a017; }
+  ul { margin-top: 0.3em; }
+  ol > li { margin-bottom: 0.5em; }
+  .meta-table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+  .meta-table td { padding: 0.3em 0.8em; border: 1px solid #ddd; }
+  .meta-table td:first-child { font-weight: bold; background: #fafafa; width: 30%; }
+  .example-session { border-left: 3px solid #999; padding-left: 1em; margin: 1em 0; color: #333; }
+</style>
+</head>
+<body>
+
+<h1>Assignment 4: BBS Frontend</h1>
+<p class="subtitle">Software Engineering - UATX - Spring 2026</p>
+
+<table class="meta-table">
+  <tr><td>Due</td><td>Friday, May 15, 2026, 5:00pm</td></tr>
+  <tr><td>Prereqs</td><td>Assignment 2 (BBS API) and lectures 5.1 (JS &amp; the browser), 5.2 (talking to your server), 6.1 (React intro), 7.1 (state and effects)</td></tr>
+  <tr><td>Submit</td><td>Branch + PR on the class repo</td></tr>
+</table>
+
+<h2>Background</h2>
+
+<p>Your BBS API from A2 is a real web server, but right now the only thing talking to it is curl and <code>verify_api.py</code>. In this assignment you build the actual product on top: a React app in the browser that lets a person log in by username, read the feed, post messages, click into other users' profiles, and so on. The same backend you already have, with a real frontend in front of it.</p>
+
+<p>A2 had <code>verify_api.py</code> to tell you whether you got it right...this one doesn't, because browsers are visual, stateful, asynchronous, and most of what makes a frontend "good" is stuff a script can't really check. So a bigger share of the grade rides on decisions you make and on whether your README convinces me you understood the thing your agent built. The bronze bar is higher than A2's was, and the silver tier asks for real architectural choices (routing, state/cache, identity persistence) rather than just bolt-on features.</p>
+
+<h2>Setup</h2>
+
+<p>You'll work in a new directory next to your A2, in the same class repo. Your A2 stays put at <code>assignments/bbs-webserver/&lt;your-github-username&gt;/</code> and keeps running as the backend; your A4 frontend lives alongside it at <code>assignments/bbs-frontend/&lt;your-github-username&gt;/</code>. Inside the A4 directory:</p>
+
+<pre>src/              # your React code
+public/
+tests/            # silver+ - vitest and/or playwright
+package.json
+vite.config.ts
+tsconfig.json
+index.html
+README.md</pre>
+
+<p>We will use <strong>React + TypeScript + Vite</strong>, which is what lectures 6.1 and 7.1 used. From the repo root:</p>
+
+<pre>mkdir -p assignments/bbs-frontend/&lt;your-github-username&gt;
+cd assignments/bbs-frontend/&lt;your-github-username&gt;
+npm create vite@latest . -- --template react-ts
+npm install
+npm run dev</pre>
+
+<p>The <code>.</code> in the create-vite command tells it to scaffold <em>into</em> the current directory rather than make a new <code>bbs-frontend/</code> subfolder underneath it.</p>
+
+<h3>Running the backend and frontend together</h3>
+
+<p>You will have <strong>two processes</strong> going while you develop - one for your A2 backend, one for your A4 frontend. Open two terminal tabs.</p>
+
+<p>Terminal 1, your A2 backend (same command and directory you used in A2):</p>
+
+<pre>cd assignments/bbs-webserver/&lt;your-github-username&gt;
+# activate your A2 venv however you set it up
+uvicorn main:app --port 8000</pre>
+
+<p>Terminal 2, your A4 frontend:</p>
+
+<pre>cd assignments/bbs-frontend/&lt;your-github-username&gt;
+npm run dev</pre>
+
+<p>Vite will print a URL like <code>http://localhost:5173</code>; that's what you open in the browser. The frontend reads the backend URL from the <code>VITE_API_BASE</code> env var, defaulting to <code>http://localhost:8000</code>.</p>
+
+<h3>Which API do I point at?</h3>
+
+<p>Use your own A2 API on <code>http://localhost:8000</code>. The base URL should come from a <code>VITE_API_BASE</code> env var (defaulting to <code>http://localhost:8000</code>), so you can swap it without code changes when you deploy. Yes, your A2 - the whole point of putting a frontend on top of your own backend is that you own the contract end to end, and you'll find things about your A2 by actually using it that you never noticed when only <code>verify_api.py</code> was talking to it. If your A2 has bugs that this exercise surfaces, fix them there and note the fix in your README.</p>
+
+<div class="callout-warn">
+  <strong>CORS.</strong> We did not cover CORS in class, but you are about to meet it. The very short version: when a page at <code>localhost:5173</code> tries to <code>fetch</code> from <code>localhost:8000</code>, the browser sees those as different "origins" and, by default, refuses to let the JavaScript on the page see the response unless the server explicitly opts in. This is a security feature, not a bug. The browser is protecting your users from a malicious site stealing data from a logged-in tab on another site. The <a href="https://fastapi.tiangolo.com/tutorial/cors/">FastAPI CORS docs</a> are the better primer here - they explain what CORS is and give you the exact <code>CORSMiddleware</code> snippet to drop into your A2 <code>main.py</code> in one page. Mention this in your README under "changes I made to my A2 backend".
+</div>
+
+<h2>What the app does</h2>
+
+<h3>Pages and what they show</h3>
+
+<p>You need at least these views. They can be routes (silver) or just conditional renders (bronze).</p>
+
+<table class="meta-table">
+  <tr><td><strong>View</strong></td><td><strong>What it shows</strong></td></tr>
+  <tr><td>Feed</td><td>The N most recent posts from <code>GET /posts</code>, newest first. Each row shows the message, the username (clickable to that user's profile), and the timestamp. A search box that hits <code>?q=</code>. Pagination controls (next/prev or "load more").</td></tr>
+  <tr><td>Compose</td><td>A textarea + post button that calls <code>POST /posts</code> with the current user's <code>X-Username</code> header. Shows server-side validation errors (422 with message length, etc) inline next to the field. Cmd+Enter / Ctrl+Enter posts.</td></tr>
+  <tr><td>User list</td><td><code>GET /users</code> rendered as a list of clickable usernames.</td></tr>
+  <tr><td>User profile</td><td>Single user's info from <code>GET /users/{username}</code> plus their posts from <code>GET /users/{username}/posts</code>. 404 view if the user doesn't exist.</td></tr>
+  <tr><td>Post detail</td><td><code>GET /posts/{id}</code>. Shows the post and a delete button (visible to anyone in bronze - this is fine, <code>X-Username</code> is not real auth, see your A2 README; silver asks you to be identity-aware and only show it on your own posts).</td></tr>
+  <tr><td>Sign-up / switch user</td><td>A way to create a new user (<code>POST /users</code>) and a way to switch which username you're "logged in as". Persisted in <code>localStorage</code> so a refresh doesn't kick you out.</td></tr>
+</table>
+
+<div class="callout-warn">
+  <strong>localStorage.</strong> Same deal as CORS - we did not cover localStorage in lecture either, but you'll want it for the "stay logged in across refreshes" piece. It's a key/value store the browser keeps per-origin (so your app on <code>localhost:5173</code> has its own bucket, separate from anything else you've ever opened). The whole API you need is <code>localStorage.setItem('username', 'alice')</code> and <code>localStorage.getItem('username')</code> - both synchronous, both string-or-null. It survives refreshes and tab closes, which is what makes the "remember which user I am" requirement basically a one-liner. It does NOT survive a user clearing site data or browsing in incognito, which is fine - <code>X-Username</code> isn't real auth anyway, so we're just storing a preference.
+</div>
+
+<h3>Loading and error states</h3>
+
+<p>Every fetch in your app needs three states visible to the user:</p>
+
+<ol>
+  <li><strong>Loading</strong> - some indication that a request is in flight. A spinner, "loading...", a skeleton row, anything that isn't blank.</li>
+  <li><strong>Success</strong> - the data is rendered.</li>
+  <li><strong>Error</strong> - if the request fails (network error, 4xx, 5xx), the user sees an actual message about what went wrong, not a blank screen and a console error. 422s from your A2 API have a useful <code>detail</code> field - surface it.</li>
+</ol>
+
+<p>This is a thing agents are bad at by default. They will happily ship you a component that renders <code>data.map(...)</code> with no guard for the loading state and no error handling at all, and it will work fine in the happy path until you tab away and come back, at which point you stare at a white page. Push your agent on this. Or write the loading/error scaffolding yourself first and ask the agent to fill in the success state.</p>
+
+<h3>Forms and validation</h3>
+
+<p>Your A2 API enforces rules: messages 1-500 chars, usernames 3-20 chars matching <code>^[a-zA-Z0-9_]+$</code>. Your frontend should help the user not hit those errors:</p>
+
+<ul>
+  <li>Disable the submit button when the input is empty (or, for username, when it doesn't match the regex).</li>
+  <li>Show a character count on the post textarea, turning red past 500.</li>
+  <li>If the server still returns 422 (because someone's clever and bypassed the disabled state, or because the server has a stricter rule you didn't know about), show the server's error message inline. Do not eat it.</li>
+</ul>
+
+<h3>Accessibility - silver and gold</h3>
+
+<p>We didn't cover accessibility in lecture, so this isn't a bronze requirement. For silver and gold, do the basics: every input has a real <code>&lt;label&gt;</code> tied to it (with <code>htmlFor</code>/<code>id</code>, or by wrapping). Every button has visible text or an <code>aria-label</code>. The page should be usable from the keyboard - tab order makes sense, the post button is reachable, the search field is reachable. Nothing exhaustive...but if you can't tab to your own compose textarea, that's a problem.</p>
+
+<h2>Tiers</h2>
+
+<div class="tier tier-bronze">
+  <strong>Bronze</strong><br>
+  All six views above are implemented and reachable. All eight A2 bronze endpoints are wired up somewhere in the UI. Every fetch has visible loading + error states. Compose form does client-side validation and surfaces server 422s. Current username persists across refresh via <code>localStorage</code>. README is present. The app runs with <code>npm install &amp;&amp; npm run dev</code> against a default <code>VITE_API_BASE</code>.
+</div>
+
+<div class="tier tier-silver">
+  <strong>Silver</strong><br>
+  Everything in bronze, plus all of the following:
+  <ul>
+    <li><strong>Real routing.</strong> Use <code>react-router-dom</code> (or equivalent). URLs like <code>/</code>, <code>/users</code>, <code>/users/alice</code>, <code>/posts/42</code> work, are bookmarkable, and survive a refresh. The browser back button does the right thing.</li>
+    <li><strong>Optimistic updates</strong> for at least one action - posting a new message OR deleting a post. The UI reflects the change immediately, then reconciles with the server response, and rolls back on failure (with an error toast or inline message).</li>
+    <li><strong>Identity-aware destructive actions.</strong> Don't put a delete button on a post the current user didn't write. This is a UX/clarity call, not security - <code>X-Username</code> still isn't real auth and your backend may still accept the call - but a good frontend doesn't dangle a destructive action in front of someone who has no business taking it. (Bronze lets you show delete to anyone; silver asks you to be identity-aware about it.)</li>
+    <li><strong>Pagination UX</strong> that feels right - infinite scroll, a "load more" button, numbered pages, your call. If your A2 only supports offset and you want cursor (or vice versa), feel free to change your A2; just mention the change in your README.</li>
+    <li><strong>At least one keyboard shortcut</strong> beyond Cmd+Enter to post - and it has to actually <em>do</em> something in the app: focus the search box, jump to the compose field, move through the feed, that kind of thing. Surface it somewhere visible (a "?" overlay, a tooltip, a footer line - not buried). A shortcut whose only job is to open the shortcuts panel does not count - that is the surfacing, not the shortcut.</li>
+    <li><strong>A test directory</strong> with at least 3 tests. Vitest + React Testing Library on a couple of components, OR a Playwright spec hitting <code>npm run dev</code>. Doesn't need 100% coverage, just real tests of real behavior.</li>
+    <li><strong>Basic accessibility.</strong> See the section above - labels, keyboard reachability, no <code>div</code>s pretending to be buttons.</li>
+  </ul>
+</div>
+
+<div class="tier tier-gold">
+  <strong>Gold</strong><br>
+  Everything in silver, plus at least <strong>two</strong> of the following four. Pick the ones you actually want to dig into - you'll do better work on two you care about than four you're grinding through.
+  <ul>
+    <li><strong>Real-time-ish updates.</strong> When user A posts a message, user B's open feed reflects it within ~5 seconds without a manual refresh. Polling (<code>setInterval</code> + refetch) is fine and is the easiest path. Server-sent events or websockets are cooler but require backend work in your A2 server. Whichever you pick, explain in the README why polling-vs-push fits your use case.</li>
+    <li><strong>One nontrivial UI feature you came up with.</strong> Examples: dark mode that respects <code>prefers-color-scheme</code> and persists, drag-to-reorder draft messages, message reactions UI (if you built reactions in A2 gold), threads, mentions that render as links. Not a styling tweak - something with state and real interaction. Describe it in the README.</li>
+    <li><strong>Real automated tests that prove the user flow.</strong> A Playwright spec that runs against a local <code>npm run dev</code> (or a CI job that spins one up) and covers at least: create user, switch to that user, post a message, see it in the feed, delete it. Pasted into <code>tests/</code> and runnable with one command.</li>
+    <li><strong>Visual design that has a point of view.</strong> You don't need to be a designer, but a coherent type scale, deliberate color choices, decent spacing, and a layout that holds up at mobile width. Plain CSS, CSS modules, Tailwind, a component library - your call, no requirement either way. The thing being graded is the result, not the tool.</li>
+  </ul>
+</div>
+
+<h2>README requirements</h2>
+
+<ol>
+  <li><strong>How to run</strong> - install command, dev command, the <code>VITE_API_BASE</code> env var, any backend setup (CORS, etc).</li>
+  <li><strong>Tier targeted</strong> - bronze, silver, or gold.</li>
+  <li><strong>Design decisions</strong> - at least 4 bullets. Good topics: routing approach (silver+), optimistic-update strategy (silver+), real-time approach (gold), how you handled the <code>X-Username</code> "not real auth" reality from the user's perspective.</li>
+  <li><strong>Where my agent helped most and where I had to push back</strong> - one paragraph. Not for grading - I want to read these as a class. Specifics like "Claude wanted to put all the fetch calls inline in components and I had to argue it into a hooks layer" are great.</li>
+  <li><strong>Silver/gold only:</strong> test command, and (gold) a sentence on each of the gold items you picked.</li>
+</ol>
+
+<h2>What to submit</h2>
+
+<ol>
+  <li>Create a branch: <code>git checkout -b bbs-frontend-&lt;your-github-username&gt;</code></li>
+  <li>Put your code in: <code>assignments/bbs-frontend/&lt;your-github-username&gt;/</code></li>
+  <li>Commit your <code>node_modules</code>... just kidding. <code>.gitignore</code> them. Vite's scaffolder ships a reasonable <code>.gitignore</code>; trust it.</li>
+  <li>Push and open a PR titled "BBS Frontend - &lt;your-name&gt;"</li>
+</ol>
+
+<h2>A note on coding agents</h2>
+
+<p>The thing about a frontend is that an agent can produce something that looks done in 20 minutes. It mounts, it renders, it talks to the API, the happy path works. But then you tab away, the cache goes stale, you click delete twice fast, you submit an empty form, the network blips - and the seams show. Most of bronze is really there to make you actually click through those edge cases yourself, because your agent will not. It will write the code that handles them only if you ask, specifically, for each one. Push your agent on the loading/error states. Push it on what happens when you click the same button twice. Push it on what the page looks like at 320px wide. The README question about "where I had to push back" is real - I am genuinely curious which corners your particular agent cuts.</p>
+
+<p>The other half of this is that I'll be asking you about your code. Agents are great at producing working code and bad at producing an explanation of why it's structured the way it is, because the structure often emerged from whatever it generated first. So step back before submitting and make sure you can actually narrate what your app is doing - which fetch lives where, what gets re-rendered when the user posts a message, what your app does if the backend goes away for 30 seconds. If you can't answer those, that's information - go simplify until you can.</p>
+
+<h2>Grading</h2>
+
+<table class="meta-table">
+  <tr><td>Bronze</td><td>Satisfactory: a working, usable app with the basics handled - loading states, errors surfaced, every endpoint wired up, validation and identity persistence working</td></tr>
+  <tr><td>Silver</td><td>Good: real architectural choices made and defended, with tests, and the basics of accessibility</td></tr>
+  <tr><td>Gold</td><td>Excellent: pick at least two of - real-time updates, an invented UI feature, automated end-to-end tests, visual design with a point of view</td></tr>
+</table>
+
+<p>Point breakdown is the same shape as A2: 25 bronze, 10 style/quality, 8 silver, 7 gold, total 50. Style/quality on this one weighs visual taste and code organization more than A2 did - if your app looks like an unstyled form pile or your <code>App.tsx</code> is 800 lines, that lands here.</p>
+
+</body>
+</html>

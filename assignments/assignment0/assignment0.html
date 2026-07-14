@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page {
+    size: letter;
+    margin: 1in;
+  }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: #1a1a1a;
+  }
+  h1 {
+    font-size: 22pt;
+    margin-bottom: 0.1em;
+    border-bottom: 2px solid #333;
+    padding-bottom: 0.3em;
+  }
+  .subtitle {
+    font-size: 13pt;
+    color: #555;
+    margin-top: 0;
+    margin-bottom: 2em;
+  }
+  h2 {
+    font-size: 15pt;
+    margin-top: 1.5em;
+    color: #2a2a2a;
+  }
+  h3 {
+    font-size: 12pt;
+    margin-top: 1.2em;
+  }
+  code {
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 10pt;
+    background: #f0f0f4;
+    padding: 0.15em 0.35em;
+    border-radius: 3px;
+  }
+  pre {
+    background: #f0f0f4;
+    padding: 0.8em 1em;
+    border-radius: 5px;
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 10pt;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+  }
+  .callout {
+    background: #eef4ff;
+    border-left: 4px solid #3b82f6;
+    padding: 0.8em 1em;
+    margin: 1em 0;
+    border-radius: 0 5px 5px 0;
+  }
+  ul { margin-top: 0.3em; }
+  .meta-table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+  .meta-table td { padding: 0.3em 0.8em; border: 1px solid #ddd; }
+  .meta-table td:first-child { font-weight: bold; background: #fafafa; width: 30%; }
+</style>
+</head>
+<body>
+
+<h1>Assignment 0: Hello, World</h1>
+<p class="subtitle">Software Engineering - UATX - Spring 2026</p>
+
+<table class="meta-table">
+  <tr><td>Due</td><td>Before Lecture 2</td></tr>
+  <tr><td>Estimated time</td><td>30-60 minutes</td></tr>
+  <tr><td>What you need</td><td>A terminal, a coding agent, a GitHub account</td></tr>
+</table>
+
+<h2>Overview</h2>
+
+<p>This assignment is a plumbing check. We're making sure you've got a working terminal, a coding agent (Claude, Cursor, Copilot, whatever you prefer), and git/GitHub. Nothing tricky here. If you can push a commit, you're done.</p>
+
+<h2>Setup</h2>
+
+<ol>
+  <li><strong>Create a GitHub account</strong> if you don't have one already at <code>github.com</code>.</li>
+  <li><strong>Install git</strong> if it's not already on your machine. Run <code>git --version</code> in your terminal to check.</li>
+  <li><strong>Set up a coding agent.</strong> Any LLM-based coding tool works: Claude Code, GitHub Copilot, Cursor, etc. If you're not sure what to use, ask in class.</li>
+</ol>
+
+<h2>The Assignment</h2>
+
+<ol>
+  <li>
+    <strong>Clone the class repository:</strong>
+    <pre>git clone https://github.com/[TBD]/uatx-se-2026.git
+cd uatx-se-2026</pre>
+  </li>
+  <li>
+    <strong>Create a branch</strong> with your GitHub username:
+    <pre>git checkout -b hello-&lt;your-github-username&gt;</pre>
+  </li>
+  <li>
+    <strong>Create a file</strong> at <code>students/&lt;your-github-username&gt;.md</code> containing:
+    <ul>
+      <li>Your name</li>
+      <li>One interesting thing about you</li>
+      <li>A haiku written by your coding agent</li>
+      <li>Which agent/model you used to write the haiku</li>
+    </ul>
+    <p>Example:</p>
+<pre># Ada Lovelace
+
+I once wrote the first computer program, and I did it on paper.
+
+## Haiku (by Claude)
+
+    Loops of silk and steel
+    the engine weaves what I dream
+    math becomes music
+
+</pre>
+  </li>
+  <li>
+    <strong>Commit and push:</strong>
+    <pre>git add students/&lt;your-github-username&gt;.md
+git commit -m "Add &lt;your-name&gt; introduction"
+git push -u origin hello-&lt;your-github-username&gt;</pre>
+  </li>
+  <li>
+    <strong>Open a pull request</strong> on GitHub from your branch into <code>main</code>. Title it "Hello from &lt;your-name&gt;".
+  </li>
+</ol>
+
+<div class="callout">
+  <strong>That's it.</strong> Once your PR is open, you're done. We'll merge them all before the next class, and then you can <code>git pull</code> and see everyone's introductions.
+</div>
+
+<h2>What We're Really Checking</h2>
+
+<ul>
+  <li>You can use a terminal</li>
+  <li>You can clone, branch, commit, and push with git</li>
+  <li>You have a coding agent installed and can talk to it</li>
+  <li>You can open a pull request on GitHub</li>
+</ul>
+
+<p>If anything goes wrong (git errors, GitHub permissions, agent setup), email me at <code>aaymeloglu@uaustin.org</code> or come to office hours. This is a plumbing check, not a test.</p>
+
+</body>
+</html>

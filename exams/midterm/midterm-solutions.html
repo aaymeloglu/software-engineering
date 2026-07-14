@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page {
+    size: letter;
+    margin: 0.85in 0.9in 0.9in 0.9in;
+  }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.45;
+    color: #111;
+  }
+  h1 {
+    font-size: 22pt;
+    margin: 0 0 0.1em 0;
+    border-bottom: 2px solid #333;
+    padding-bottom: 0.25em;
+  }
+  .subtitle {
+    font-size: 12pt;
+    color: #555;
+    margin-top: 0.2em;
+    margin-bottom: 1.4em;
+  }
+  code {
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 9.8pt;
+    background: #f1f1f4;
+    padding: 0.08em 0.3em;
+    border-radius: 3px;
+  }
+  pre {
+    background: #f1f1f4;
+    padding: 0.6em 0.85em;
+    border-radius: 4px;
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 8.7pt;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    margin: 0.5em 0;
+  }
+  .meta-table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 9.5pt; }
+  .meta-table td { padding: 0.4em 0.7em; border: 1px solid #ddd; vertical-align: top; }
+
+  .header-note {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    padding: 0.7em 1em;
+    margin: 1.2em 0;
+    border-radius: 5px;
+    font-size: 10pt;
+  }
+
+  .sol {
+    page-break-before: always;
+  }
+  .sol:first-of-type {
+    page-break-before: auto;
+  }
+  .sol h2 {
+    font-size: 13pt;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 0.2em;
+    margin-bottom: 0.5em;
+  }
+  .key-label {
+    display: inline-block;
+    background: #fef3c7;
+    border: 1px solid #d97706;
+    color: #78350f;
+    padding: 0.1em 0.5em;
+    font-size: 9pt;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.4em;
+  }
+</style>
+</head>
+<body>
+
+<h1>Midterm &mdash; Solutions</h1>
+<p class="subtitle">Software Engineering &mdash; UATX &mdash; Spring 2026</p>
+
+<!-- ============================================================== -->
+<!-- SOLUTION 1                                                     -->
+<!-- ============================================================== -->
+
+<div class="sol">
+<span class="key-label">1 &mdash; Solution</span>
+<h2><code>engine.begin()</code> commits on success, rolls back on exception</h2>
+
+<p><strong>A:</strong> <code>3</code>. Inside the <code>try</code> block, the third <code>INSERT</code> happens on the same connection that runs the <code>SELECT COUNT(*)</code> &mdash; it sees its own uncommitted writes. The transaction has not yet committed, but the SELECT runs in the same transaction, so it counts the new row.</p>
+
+<p><strong>B:</strong> <code>2</code>. <em>Why:</em> <code>engine.begin()</code> is a transaction context manager &mdash; it commits on normal exit and ROLLS BACK on exception. The <code>RuntimeError</code> propagated past the <code>with</code> block before COMMIT, so the third <code>INSERT</code> was undone. Only the two original rows remain.</p>
+
+<p><strong>C:</strong> <code>[(1, 'OOPS'), (2, 'second'), (3, 'fourth')]</code>. The third <code>with engine.begin()</code> block exited normally, so both the UPDATE (id=1's body becomes <code>'OOPS'</code>) and the INSERT (a fourth row at id=3) committed together.</p>
+
+</div>
+
+
+<!-- ============================================================== -->
+<!-- SOLUTION 2                                                     -->
+<!-- ============================================================== -->
+
+<div class="sol">
+<span class="key-label">2 &mdash; Solution</span>
+<h2>Test file: isolation, ordering, weak assertions</h2>
+
+<p>Four real problems. Full credit for three.</p>
+
+<ol>
+  <li><strong>No <code>test_db</code> fixture &mdash; tests share whichever DB <code>db.engine</code> happens to point to.</strong> On the first run, the file is empty, so <code>alice</code> gets created and the tests pass. On the second run, <code>alice</code> already exists, so <code>test_create_user_and_list_includes_them</code>'s POST returns 409 instead of 201 and the test fails for an unrelated reason. Fix: add the <code>test_db</code> fixture from class &mdash; swap <code>db.engine</code> to a fresh in-memory SQLite engine for each test, restore after.</li>
+  <li><strong><code>test_get_user_returns_user_data</code> depends on <code>test_create_user_and_list_includes_them</code> running first</strong> (so that <code>alice</code> exists). If pytest re-orders tests, runs them in parallel, or that test fails, this test breaks for the wrong reason. Fix: the test should arrange its own state &mdash; create alice inside the test before calling GET.</li>
+  <li><strong><code>assert len(users) &gt;= 1</code> is too weak.</strong> It passes whether the response has 1 user or 10,000. Combined with the lack of isolation, it'd happily pass on a polluted DB. Fix: assert exact length (<code>== 1</code>) once isolation is in place, or assert a specific user is present and that's the only one expected.</li>
+  <li><strong><code>test_create_user_and_list_includes_them</code> is doing two things at once.</strong> AAA from class: one Arrange, one Act, one Assert. This test creates a user and tests the list endpoint &mdash; if the list assert fails, you don't know whether create or list is broken. Fix: split into <code>test_create_user_returns_201</code> and <code>test_list_users_includes_a_just-created_user</code>.</li>
+</ol>
+
+<p>Bonus: <code>conftest.py</code> doesn't <code>yield</code> &mdash; if the fixture later grew teardown logic, it'd need <code>yield client</code>; not a defect today.</p>
+
+</div>
+
+
+<!-- ============================================================== -->
+<!-- SOLUTION 3                                                     -->
+<!-- ============================================================== -->
+
+<div class="sol">
+<span class="key-label">3 &mdash; Solution</span>
+<h2>Notification preferences schema</h2>
+
+<p><strong>1. Shape decision: separate table.</strong> The spec says 5&ndash;10 new event types per year; the wide approach (one column per <em>(event, channel)</em> on the users table) would mean a schema migration adding three columns each time, with a users table that grows sparse and ever-wider. A separate table absorbs new event types as rows instead of columns.</p>
+
+<p><strong>2. The SQL:</strong></p>
+<pre>CREATE TABLE notification_preferences (
+    user_id     INTEGER NOT NULL,
+    event_type  TEXT    NOT NULL,
+    channel     TEXT    NOT NULL,
+    enabled     BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, event_type, channel),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CHECK (channel IN ('email', 'push', 'in_app'))
+);</pre>
+
+<p>Defaults are seeded on user creation (one row per known event_type per channel; the one exception per the spec is <code>('mentioned_in_comment', 'push')</code> with <code>enabled = FALSE</code>).</p>
+
+<p><strong>3. Real ambiguities in the spec</strong> (any one is acceptable; strong answers name the call they'd make):</p>
+<ul>
+  <li><strong>What happens when a new event type ships?</strong> Do existing users get rows auto-inserted with the default? Or is "no row" treated by app code as "default on"? <em>Call:</em> on each new event_type release, run a migration that inserts default rows for all existing users; that way the table is the source of truth and the app code doesn't have to special-case missing rows.</li>
+  <li><strong>If a user has no row for some <em>(event, channel)</em> pair</strong> &mdash; is that "default on" or "unset and we should treat it as on"? <em>Call:</em> guarantee every user has a row for every known pair (per above), so "no row" is impossible.</li>
+  <li><strong>Does the "everything on, except mentioned_in_comment over push" default belong in the schema or in app code?</strong> A column-level <code>DEFAULT</code> can't express "TRUE for most pairs, FALSE for one specific pair" &mdash; that has to live where the seeding happens. <em>Call:</em> seed defaults in the user-creation handler, not via column defaults.</li>
+  <li><strong>What happens when a user is deleted?</strong> <em>Call:</em> <code>FOREIGN KEY ... ON DELETE CASCADE</code> so their preferences go with them.</li>
+  <li><strong>How is <code>event_type</code> validated?</strong> Free-text TEXT, a CHECK constraint over a known set, or a separate <code>event_types</code> reference table? <em>Call:</em> TEXT for now; revisit if events grow metadata.</li>
+</ul>
+
+</div>
+
+
+<!-- ============================================================== -->
+<!-- SOLUTION 4                                                     -->
+<!-- ============================================================== -->
+
+<div class="sol">
+<span class="key-label">4 &mdash; Solution</span>
+<h2>Monster vs focused tests for checkout</h2>
+
+<p><strong>Version B is the right answer.</strong> Reasons:</p>
+<ol>
+  <li><strong>Failure localization.</strong> If a test in B fails, the test name tells you which behavior broke (<code>test_checkout_with_empty_cart_400s</code>). If A fails on the second checkout assertion, all you know is some step in <code>test_complete_checkout_flow</code> broke.</li>
+  <li><strong>Early-fail masking.</strong> In A, if the first POST 500s, the rest of the assertions never run, so a single execution shows one bug. B exposes them all per run.</li>
+  <li><strong>Tests as documentation.</strong> Reading B's test names tells you the API contract; A's <code>test_complete_checkout_flow</code> tells you nothing.</li>
+  <li><strong>Easier to extend.</strong> Adding "checkout with bad payment token returns 402" in B is a new function. In A, it's editing a 20-line test and figuring out where to insert the assert.</li>
+</ol>
+
+<p><strong>Specific case A handles better</strong> (either of these earns full marks):</p>
+<ul>
+  <li><strong>Cart-empties-after-checkout invariant.</strong> A verifies it directly &mdash; right after the successful checkout, in the same test that confirmed the items were there. None of B's individual tests checks that side-effect. (B has <code>test_checkout_with_empty_cart_400s</code>, but that starts from a fresh cart, so it doesn't catch a regression where a successful checkout fails to clear the cart.)</li>
+  <li><strong>Order total matches cart total.</strong> A asserts <code>order["total_cents"] == 4500</code> after checkout, catching a regression where the order is created with the wrong price. B's <code>test_checkout_creates_paid_order</code> only checks <code>status == "paid"</code> and never asserts on the order's total.</li>
+</ul>
+
+<p><strong>What other tests would you add to B</strong> (any two or three of these earn full marks):</p>
+<ul>
+  <li><strong>The cart-empties-after-checkout test</strong> &mdash; the case A handles that B doesn't.</li>
+  <li><strong>Adding an item with <code>qty=0</code> or <code>qty=-1</code></strong> &mdash; should be 400 / 422.</li>
+  <li><strong>Adding an unknown SKU</strong> &mdash; should be 404 or 400.</li>
+  <li><strong>Checkout twice in a row from the same cart</strong> &mdash; the second one should 400 because the cart is empty after the first.</li>
+  <li><strong>Adding the same SKU twice</strong> &mdash; should the qty stack into one line item, or get rejected? Tests both that the spec is decided AND that the implementation matches.</li>
+  <li><strong>Checkout with a missing <code>payment_token</code></strong> &mdash; should be 400.</li>
+</ul>
+
+<p>Picking A and defending it well ("for a release smoke test, the linear story is the point and a single failure halts the deploy") also earns full marks on question 1, and questions 2 and 3 still apply: B's failure-localization is the case A doesn't handle as well, and "what other tests would you add to A" should be a list of unrelated cases (bad SKU, bad qty, etc.) since A already covers the happy-path E2E.</p>
+
+</div>
+
+
+<!-- ============================================================== -->
+<!-- SOLUTION 5                                                     -->
+<!-- ============================================================== -->
+
+<div class="sol">
+<span class="key-label">5 &mdash; Solution</span>
+<h2>Test boundary for <code>charge_user</code></h2>
+
+<p><strong>1. Boundaries:</strong></p>
+<ul>
+  <li><strong>Database: in-memory test version.</strong> Spin up a fresh <code>sqlite:///:memory:</code> engine in a <code>test_db</code> fixture &mdash; the same pattern from class. Fast, isolated, exercises the real SQL strings (mocking the DB hides bugs in those strings).</li>
+  <li><strong>Stripe: mock.</strong> Real calls cost money, require network access, are slow, and can flake. Patch <code>stripe.PaymentIntent.create</code> with <code>unittest.mock</code> and assert on what it was called with &mdash; the "when to mock" lesson from 4.2.</li>
+</ul>
+
+<p><strong>2. Three tests:</strong></p>
+
+<pre>def test_charge_raises_if_no_payment_method(test_db, mock_stripe):
+    # no row in payment_methods for user_id=42
+    with pytest.raises(ChargeError, match="no payment method"):
+        charge_user(42, 5000, test_db)
+    mock_stripe.PaymentIntent.create.assert_not_called()
+
+
+def test_charge_calls_stripe_with_correct_amount(test_db, mock_stripe):
+    test_db.execute(text(
+        "INSERT INTO payment_methods (user_id, stripe_pm_id) "
+        "VALUES (42, 'pm_x')"
+    ))
+    mock_stripe.PaymentIntent.create.return_value = SimpleNamespace(
+        id="ch_123", status="succeeded"
+    )
+    charge_user(42, 5000, test_db)
+    mock_stripe.PaymentIntent.create.assert_called_once_with(
+        amount=5000, currency="usd",
+        payment_method="pm_x", confirm=True,
+    )
+
+
+def test_charge_writes_audit_row_on_success(test_db, mock_stripe):
+    test_db.execute(text(
+        "INSERT INTO payment_methods (user_id, stripe_pm_id) "
+        "VALUES (42, 'pm_x')"
+    ))
+    mock_stripe.PaymentIntent.create.return_value = SimpleNamespace(
+        id="ch_123", status="succeeded"
+    )
+    charge_user(42, 5000, test_db)
+    row = test_db.execute(text(
+        "SELECT * FROM charges WHERE user_id = 42"
+    )).first()
+    assert row.stripe_id == "ch_123"
+    assert row.amount_cents == 5000</pre>
+
+<p><strong>3. Test you would NOT write:</strong></p>
+<ul>
+  <li>"Test that <code>stripe.PaymentIntent.create</code> actually charges the card." That's testing Stripe, not your code &mdash; their service has its own tests, and running it from your CI is slow, costs money, and turns a unit-of-behavior test into an integration test of someone else's API.</li>
+  <li>OR: "Test that the <code>INSERT</code> writes to the correct file on disk." That's testing SQLite/SQLAlchemy, not your code.</li>
+  <li>OR: a test that asserts BOTH that Stripe is called AND that the audit row is written, in the same test &mdash; that's two acts (4.1's AAA), and when it fails you don't know which behavior broke.</li>
+</ul>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>Final Exam — Solutions</title>
+<style>
+@page { size: letter; margin: 0.7in 0.8in 0.7in 0.8in; }
+body { font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+       font-size: 11pt; line-height: 1.45; color: #111; }
+h1 { font-size: 22pt; margin: 0 0 0.1em 0; border-bottom: 2px solid #333; padding-bottom: 0.25em; }
+.subtitle { font-size: 12pt; color: #555; margin: 0.2em 0 1.2em 0; }
+h2 { font-size: 12pt; text-transform: uppercase; letter-spacing: 0.04em; color: #333;
+     margin: 1.3em 0 0.4em 0; }
+h3 { font-size: 11pt; margin: 1.1em 0 0.3em 0; text-transform: uppercase;
+     letter-spacing: 0.04em; color: #333; }
+code { font-family: "SF Mono", "Menlo", "Monaco", monospace; font-size: 9.6pt;
+       background: #f1f1f4; padding: 0.06em 0.3em; border-radius: 3px; }
+pre { background: #f1f1f4; padding: 0.55em 0.8em; border-radius: 4px;
+      font-family: "SF Mono", "Menlo", "Monaco", monospace; font-size: 9.0pt;
+      line-height: 1.38; white-space: pre-wrap; overflow-wrap: break-word; margin: 0.5em 0; }
+table { width: 100%; border-collapse: collapse; margin: 0.8em 0; font-size: 9.8pt; }
+td, th { padding: 0.35em 0.6em; border: 1px solid #ddd; vertical-align: top; text-align: left; }
+th { background: #fafafa; }
+.meta-table td:first-child { font-weight: bold; background: #fafafa; width: 26%; }
+ol, ul { margin: 0.4em 0 0.5em 1.1em; padding-left: 0.7em; }
+ol > li, ul > li { margin-bottom: 0.35em; }
+.question { page-break-before: always; }
+.q-header { display: flex; justify-content: space-between; align-items: baseline;
+            border-bottom: 1px solid #333; padding-bottom: 0.3em; margin-bottom: 0.6em; }
+.q-id { font-size: 14pt; font-weight: bold; }
+.q-meta { font-size: 9.5pt; color: #555; text-align: right; }
+.answer { margin-top: 1.1em; background: #eef6ee; border: 1px solid #cfe6cf;
+          border-radius: 5px; padding: 0.5em 0.9em 0.2em 0.9em; }
+.answer-label { display: inline-block; background: #cfe6cf; color: #1f4d1f;
+                font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.05em;
+                padding: 0.1em 0.5em; border-radius: 3px; margin-bottom: 0.3em; }
+.answer p, .answer ol, .answer ul { font-size: 10pt; }
+.legend td:first-child { font-weight: bold; white-space: nowrap; }
+.name-field { float: right; font-size: 10.5pt; margin-top: 0.2em; }
+.name-field .blank { display: inline-block; border-bottom: 1px solid #333; width: 2.4in; height: 1em; }
+.lines { margin-top: 1em; }
+
+.question:first-of-type { page-break-before: auto; }
+</style>
+</head>
+<body>
+<h1>Final Exam — Solutions</h1><p class='subtitle'>Software Engineering — UATX — Spring 2026</p>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">Question 1</span></div>
+  <p>This component renders a shopping cart. Work out what it puts on the screen for an empty cart (<code>items</code> is <code>[]</code>) and for a cart with two products. One of those cases shows something the developer did not intend.</p>
+<pre>function Cart({ items }) {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Your cart&lt;/h2&gt;
+      {items.length &amp;&amp; (
+        &lt;ul&gt;
+          {items.map(i =&gt; &lt;li key={i.id}&gt;{i.name}&lt;/li&gt;)}
+        &lt;/ul&gt;
+      )}
+      {items.length &gt; 0 &amp;&amp; &lt;button&gt;Check out&lt;/button&gt;}
+    &lt;/div&gt;
+  );
+}</pre>
+<ol><li>What is it?</li><li>Why does it happen?</li><li>How could you fix it?</li></ol>
+  <div class="answer"><span class="answer-label">Solution</span>
+  <p>1. On the empty cart it renders the <code>&lt;h2&gt;Your cart&lt;/h2&gt;</code>, then a stray <code>0</code> as text on the page (and no button). The two-product cart renders as intended -- the list and the &quot;Check out&quot; button. The unintended thing is that stray <code>0</code>.</p>
+<p>2. <code>items.length</code> is <code>0</code> on an empty cart, and <code>0 &amp;&amp; &lt;ul&gt;...</code> evaluates to <code>0</code> -- JS returns the falsy left operand -- and React renders the number <code>0</code> as text. (With two items, <code>2 &amp;&amp; &lt;ul&gt;...</code> returns the <code>&lt;ul&gt;</code>, so it renders fine.) The second line, <code>items.length &gt; 0 &amp;&amp; &lt;button&gt;</code>, is already a boolean (<code>false</code> on an empty cart), and React renders nothing for <code>false</code>, which is why the button is correctly absent.</p>
+<p>3. Make the left side a real boolean so it can never be the number <code>0</code>: <code>items.length &gt; 0 &amp;&amp; &lt;ul&gt;...</code> (or <code>items.length ? &lt;ul&gt;... : null</code>).</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">Question 2</span></div>
+  <p><code>products.review_count</code> is a denormalized counter kept in sync as reviews are added. Two shoppers review the same product at the same instant; <code>review_count</code> starts at 5. Both transactions run their <code>SELECT review_count</code> before either runs its <code>UPDATE</code>.</p>
+<pre>@app.post(&quot;/api/products/{product_id}/reviews&quot;)
+def add_review(product_id: int, body: ReviewIn,
+               user: User = Depends(current_user)):
+    with engine.begin() as conn:
+        conn.execute(
+            text(&quot;INSERT INTO reviews (product_id, author_id, body) &quot;
+                 &quot;VALUES (:p, :u, :b)&quot;),
+            {&quot;p&quot;: product_id, &quot;u&quot;: user.id, &quot;b&quot;: body.text},
+        )
+        row = conn.execute(
+            text(&quot;SELECT review_count FROM products WHERE id = :p&quot;),
+            {&quot;p&quot;: product_id},
+        ).first()
+        conn.execute(
+            text(&quot;UPDATE products SET review_count = :c WHERE id = :p&quot;),
+            {&quot;c&quot;: row.review_count + 1, &quot;p&quot;: product_id},
+        )
+    return {&quot;ok&quot;: True}</pre>
+<ol><li>How many review rows exist afterward, and what is <code>review_count</code>?</li><li>The handler already wraps all of this in a transaction (<code>engine.begin()</code>). Why didn&#x27;t that prevent the problem?</li><li>Give a fix.</li></ol>
+  <div class="answer"><span class="answer-label">Solution</span>
+  <p>1. Two review rows (both INSERTs commit), but <code>review_count</code> is 6, not 7. Both SELECTs read 5, both compute 5 + 1, both write 6 -- one increment is lost, and the counter no longer matches the number of reviews.</p>
+<p>2. A transaction makes each request&#x27;s statements commit or roll back together; it does not lock the row the plain <code>SELECT</code> read. So both transactions can read <code>review_count = 5</code> before either writes, and the read-modify-write races. A transaction is not a lock.</p>
+<p>3. Make the increment atomic: <code>UPDATE products SET review_count = review_count + 1 WHERE id = :p</code>, which the database does as one locked read-and-write; or lock the row first with <code>SELECT review_count ... FOR UPDATE</code> so the second request waits. (Better still, drop the denormalized counter and derive it with <code>COUNT(*)</code>.)</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">Question 3</span></div>
+  <p>This endpoint authenticates the caller and even checks account ownership before moving money.</p>
+<pre>class TransferRequest(BaseModel):
+    user_id: int
+    from_account: int
+    to_account: int
+    amount_cents: int
+
+@app.post(&quot;/api/transfer&quot;)
+def transfer(body: TransferRequest, user: User = Depends(current_user)):
+    with engine.begin() as conn:
+        acct = conn.execute(
+            text(&quot;SELECT owner_id FROM accounts WHERE id = :id&quot;),
+            {&quot;id&quot;: body.from_account},
+        ).first()
+        if acct.owner_id != body.user_id:
+            raise HTTPException(403, &quot;not your account&quot;)
+        conn.execute(
+            text(&quot;UPDATE accounts SET balance = balance - :a WHERE id = :id&quot;),
+            {&quot;a&quot;: body.amount_cents, &quot;id&quot;: body.from_account},
+        )
+        conn.execute(
+            text(&quot;UPDATE accounts SET balance = balance + :a WHERE id = :id&quot;),
+            {&quot;a&quot;: body.amount_cents, &quot;id&quot;: body.to_account},
+        )
+    return {&quot;ok&quot;: True}</pre>
+<ol><li>Describe the security hole and give a concrete request that exploits it.</li><li>Give the fix.</li><li>There are also multiple correctness problems, separate from the security hole. Find at least one and say how you would address it.</li></ol>
+  <div class="answer"><span class="answer-label">Solution</span>
+  <p>1. The ownership check compares the account&#x27;s <code>owner_id</code> to <code>body.user_id</code>, a value the client supplies, not to the authenticated <code>user.id</code>. An attacker sends <code>{user_id: &lt;victim&#x27;s id&gt;, from_account: &lt;victim&#x27;s account&gt;, to_account: &lt;their own&gt;, amount_cents: ...}</code>; the check passes because they set <code>user_id</code> to the victim&#x27;s, and the transfer drains the victim. Identity must come from the verified token/session, never from the request body.</p>
+<p>2. Drop <code>user_id</code> from the request and compare against the authenticated identity: <code>if acct.owner_id != user.id: raise HTTPException(403)</code>.</p>
+<p>3. Any one: no check that <code>amount_cents &gt; 0</code> (a negative amount reverses the transfer and steals) -- constrain it in the model (<code>Field(gt=0)</code>); no funds check, so the balance can go negative -- guard the debit (<code>UPDATE ... WHERE id = :id AND balance &gt;= :a</code> and treat 0 rows affected as a 409); <code>acct</code> can be <code>None</code> if the account does not exist, which crashes -- 404 first.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">Question 4</span></div>
+  <p>You are building the React frontend for a shared discussion board (the BBS app from the assignments). One page shows the messages for a board and lets the signed-in user post a new one. Other people post at the same time, so messages from others should appear without the user reloading the page. Assume a parent <code>&lt;Board&gt;</code> that renders a <code>&lt;MessageList&gt;</code> and a <code>&lt;NewMessageForm&gt;</code>. Do not write code -- design it:</p>
+<ol><li>What pieces of state does this page need, and which component owns each?</li><li>How do new messages -- the user&#x27;s own and other people&#x27;s -- get into the list, and how do you keep it reasonably fresh without a manual refresh? Name the approach and one cost of it.</li><li>What distinct UI states must the page handle?</li><li>Name one thing that is easy to get wrong here, and how you would avoid it.</li></ol>
+  <div class="answer"><span class="answer-label">Solution</span>
+  <p>1. The messages array plus loading and error flags belong to the parent <code>&lt;Board&gt;</code> -- it owns the data and passes <code>messages</code> down to <code>&lt;MessageList&gt;</code>. The in-progress draft text belongs to <code>&lt;NewMessageForm&gt;</code> as a controlled input. The board id comes from props/route. Lifting the messages to the parent lets both the list and the post action read and refresh the same data.</p>
+<p>2. Load the list on mount with <code>useEffect</code> (fetch, then setMessages). For the user&#x27;s own post, POST it and append the server&#x27;s returned message (or refetch). For other people&#x27;s messages, poll: refetch on an interval with <code>useEffect</code> + <code>setInterval</code>, cleared in the effect&#x27;s cleanup, every few seconds. Cost: polling lags by the interval and adds server load; it is the in-scope option, since real-time push (websockets) was not covered.</p>
+<p>3. Loading (first fetch), error (fetch failed), empty (no messages yet), and the loaded list -- plus a disabled / in-flight state on the form while a post is submitting.</p>
+<p>4. Any one: showing the loading spinner on every poll blanks the list, so only show it on the first load and not on background refetches; the form double-submitting or not clearing on success; appending the raw input instead of the server&#x27;s stored message; a slow refetch landing after a newer one (ignore stale results). Pick one and the guard.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">Question 5</span></div>
+  <p>You are building the ticketing piece of an event app. The app hosts many events, each identified by its own <code>event_id</code>. What it has to do:</p>
+<ul><li>Each event has its own fixed pool of free tickets (say 100). Any logged-in user can try to claim a ticket for a given event, and may hold at most one ticket per event (a user can hold tickets to several different events).</li><li>A user should be able to tell whether they currently hold a ticket for a particular event.</li><li>When a popular event&#x27;s tickets drop, thousands of users hit the app within the same few seconds, and a client on a flaky connection may fire the same request more than once.</li></ul>
+<p>Design the API for this. Do not write code, and do not worry about exact status-code numbers. Cover all four:</p>
+<ol><li>What endpoint(s) does this feature need? For each, give the HTTP method, the URL, and one sentence on what it does and what it returns. (Identity comes from the auth token, not from anything the client sends.)</li><li>The most important correctness property is that you never hand out more than 100 tickets, even under the stampede. Explain the database-level mechanism that guarantees it, and one sentence on why doing the check in application code (read the count, then insert if there is room) does not.</li><li>A flaky-connection user fires their claim twice. How do you guarantee they end up with exactly one ticket, not two?</li><li>One ambiguity in the requirements above that you would settle before building, and the call you would make.</li></ol>
+  <div class="answer"><span class="answer-label">Solution</span>
+  <p>1. Any clean REST shape, for example: <code>POST /api/events/{event_id}/claim</code> -- claims a ticket for the authenticated user if any remain and they do not already hold one, returning their ticket (or telling them it is sold out / they already have one); and <code>GET /api/events/{event_id}/ticket</code> -- returns whether the current user holds a ticket for this event. A <code>DELETE .../ticket</code> to release one is a reasonable third. Credit is for a sensible shape and taking identity from the token, not for specific URLs.</p>
+<p>2. Enforce capacity in the database with an atomic operation: e.g., a <code>tickets_remaining</code> counter decremented by <code>UPDATE ... SET tickets_remaining = tickets_remaining - 1 WHERE id = :e AND tickets_remaining &gt; 0</code>, treating 0 rows affected as sold out, or an insert guarded by a constraint/row lock. Reading the count and then inserting in app code is a check-then-act race: under the stampede many requests read &quot;room left&quot; before any of them inserts, so they all insert and you oversell.</p>
+<p>3. Make the claim idempotent on the user: a <code>UNIQUE(event_id, user_id)</code> constraint means a retried claim cannot create a second ticket -- the duplicate insert fails and you return their existing ticket -- or accept a client idempotency key and dedupe on it. Either way they end with exactly one ticket no matter how many retries arrive.</p>
+<p>4. A real ambiguity, e.g.: do over-capacity requests waitlist or just fail; can a user release and re-claim; is the limit one per user, per account, or per device. State the call.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">Question 6</span></div>
+  <p>Two versions of a component that fetches an item&#x27;s details when the selected <code>id</code> changes. The user clicks quickly through several items. Pick the version you would ship.</p>
+<pre>// Version A
+function Detail({ id }) {
+  const [data, setData] = useState(null);
+  useEffect(() =&gt; {
+    fetch(`/api/items/${id}`).then(r =&gt; r.json()).then(setData);
+  }, [id]);
+  return &lt;div&gt;{data?.name}&lt;/div&gt;;
+}
+
+// Version B
+function Detail({ id }) {
+  const [data, setData] = useState(null);
+  useEffect(() =&gt; {
+    let active = true;
+    fetch(`/api/items/${id}`)
+      .then(r =&gt; r.json())
+      .then(d =&gt; { if (active) setData(d); });
+    return () =&gt; { active = false; };
+  }, [id]);
+  return &lt;div&gt;{data?.name}&lt;/div&gt;;
+}</pre>
+<ol><li>Justify in three to five sentences, describing the specific bug the other version has and the exact sequence of clicks that triggers it.</li><li>Both versions still share one shortcoming -- what is it?</li><li>Version B&#x27;s cleanup sets a flag rather than aborting the request. Name one thing that approach does NOT do that a real cancellation would.</li></ol>
+  <div class="answer"><span class="answer-label">Solution</span>
+  <p>1. Ship B. A has the out-of-order race: click item 1, then quickly item 2; if item 1&#x27;s response arrives after item 2&#x27;s, A&#x27;s last <code>setData</code> is item 1&#x27;s and the view shows item 1&#x27;s data while the prop says item 2. B sets <code>active = false</code> in the effect cleanup, which React runs before the next effect, so a superseded response is ignored and only the current id&#x27;s data is shown.</p>
+<p>2. Neither has loading or error states and neither checks <code>response.ok</code>, so a slow fetch shows nothing and a failed one shows a stale value with no feedback.</p>
+<p>3. The flag only ignores the result; the request still runs to completion and consumes network and server work, and a genuinely slow request cannot be cut off. <code>AbortController</code> would cancel the in-flight request itself.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">Question 7</span></div>
+  <p>Your pipeline: on every push to <code>main</code>, GitHub Actions builds a Docker image, pushes it to a registry, and the prod server pulls it and restarts. It works. Reason about three things:</p>
+<ol><li>The runner that builds the image and the prod server that runs it are different machines. What exactly travels from the runner to the server, through what, and why does the server never need your Dockerfile or your source code?</li><li>The image build runs the test suite (<code>RUN pytest</code>) inside the Dockerfile. Give one reason that is the wrong place for the tests in this pipeline, and where they belong.</li><li>A database password is needed by the CI job (to run tests against a real database) and by the running container in prod. Where should each come from? They are not the same place.</li></ol>
+  <div class="answer"><span class="answer-label">Solution</span>
+  <p>1. The built image travels -- not the Dockerfile or the source. The runner runs <code>docker build</code> then <code>docker push</code>es the image to the registry; the prod server <code>docker pull</code>s that same image and runs it, so the registry is the handoff between the two machines. A built image already contains the base Python, the installed dependencies, and the copied app code as layers, so the server runs it as-is and never builds anything -- which is why it needs neither the Dockerfile nor the source.</p>
+<p>2. The CI workflow already runs the tests on every push before it builds and pushes, so <code>RUN pytest</code> re-runs them on every image build, couples building to test success, slows the build, and bakes test-only files into the image. Tests belong in the CI job (a separate step/job), not in the Dockerfile.</p>
+<p>3. The CI secret lives in GitHub Actions Secrets (<code>${{ secrets.DB_PASSWORD }}</code>), injected into the workflow run. The prod secret lives in the host/platform&#x27;s runtime config (env var / dashboard), injected when the container starts. Neither is baked into the image, and CI&#x27;s secret store is not the prod secret store.</p></div>
+</div>
+</body>
+</html>

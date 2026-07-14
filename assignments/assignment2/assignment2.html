@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page {
+    size: letter;
+    margin: 1in;
+  }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: #1a1a1a;
+  }
+  h1 {
+    font-size: 22pt;
+    margin-bottom: 0.1em;
+    border-bottom: 2px solid #333;
+    padding-bottom: 0.3em;
+  }
+  .subtitle {
+    font-size: 13pt;
+    color: #555;
+    margin-top: 0;
+    margin-bottom: 2em;
+  }
+  h2 {
+    font-size: 15pt;
+    margin-top: 1.5em;
+    color: #2a2a2a;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 12pt;
+    margin-top: 1.2em;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  code {
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 10pt;
+    background: #f0f0f4;
+    padding: 0.15em 0.35em;
+    border-radius: 3px;
+  }
+  pre {
+    background: #f0f0f4;
+    padding: 0.8em 1em;
+    border-radius: 5px;
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 10pt;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+  }
+  .callout {
+    background: #eef4ff;
+    border-left: 4px solid #3b82f6;
+    padding: 0.8em 1em;
+    margin: 1em 0;
+    border-radius: 0 5px 5px 0;
+  }
+  .callout-warn {
+    background: #fef9ee;
+    border-left: 4px solid #f59e0b;
+    padding: 0.8em 1em;
+    margin: 1em 0;
+    border-radius: 0 5px 5px 0;
+  }
+  .tier {
+    margin: 0.8em 0;
+    padding: 0.6em 1em;
+    border-radius: 5px;
+  }
+  .tier-bronze { background: #fdf2e9; border-left: 4px solid #cd7f32; }
+  .tier-silver { background: #f4f4f4; border-left: 4px solid #a0a0a0; }
+  .tier-gold   { background: #fef9e7; border-left: 4px solid #d4a017; }
+  ul { margin-top: 0.3em; }
+  ol > li { margin-bottom: 0.5em; }
+  .meta-table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+  .meta-table td { padding: 0.3em 0.8em; border: 1px solid #ddd; }
+  .meta-table td:first-child { font-weight: bold; background: #fafafa; width: 30%; }
+  .example-session { border-left: 3px solid #999; padding-left: 1em; margin: 1em 0; color: #333; }
+</style>
+</head>
+<body>
+
+<h1>Assignment 2: BBS Webserver</h1>
+<p class="subtitle">Software Engineering - UATX - Spring 2026</p>
+
+<table class="meta-table">
+  <tr><td>Due</td><td>Wednesday, April 22, 2026, 11:59pm</td></tr>
+  <tr><td>Estimated time</td><td>10-15 hours (with coding agent)</td></tr>
+  <tr><td>Prereqs</td><td>Assignment 1 (BBS) and lectures 3.1 (REST &amp; HTTP) and 3.2 (FastAPI)</td></tr>
+  <tr><td>Submit</td><td>Branch + PR on the class repo</td></tr>
+</table>
+
+<h2>Background</h2>
+
+<p>Your BBS from Assignment 1 works, but it only works on your laptop. To let anyone on the internet read and post, you need a web server. In this assignment, you will wrap your BBS in a REST API using FastAPI. The database layer from A1 stays the same. You are adding a new layer on top.</p>
+
+<p>The CLI version does not go away. You end up with two ways to talk to the same database: the commands from A1, and a set of HTTP endpoints you can hit from curl, a browser, or (in Assignment 3) a React frontend.</p>
+
+<p>This assignment ships with a partial conformance script called <code>verify_api.py</code>. It tests most of the endpoints automatically. You will extend it to cover the rest before submitting. The extension is part of the grade.</p>
+
+<h2>Setup</h2>
+
+<p>Copy the starter file from <code>starter/assignment2/verify_api.py</code> in the class repo into your working directory alongside a README stub. Your final directory should look like this:</p>
+
+<pre>assignments/bbs-webserver/&lt;your-github-username&gt;/
+  main.py           # your FastAPI application
+  db.py             # engine + init_db()
+  verify_api.py     # provided - you will extend it
+  requirements.txt  # one dependency per line (see below)
+  README.md</pre>
+
+<p>You can reuse your <code>db.py</code> from A1 with minor changes (see the schema change section below). Your <code>main.py</code> is new.</p>
+
+<p>We have not formally covered <code>requirements.txt</code> in lecture yet - we will in week 7 when we start deploying things. For now, it is a plain text file with one package name per line, which <code>pip install -r requirements.txt</code> reads to install everything at once. For this assignment, yours should contain:</p>
+
+<pre>fastapi
+uvicorn
+httpx</pre>
+
+<p><code>httpx</code> is the HTTP client used by <code>verify_api.py</code>. Pydantic comes with FastAPI and does not need its own line.</p>
+
+<h2>The API</h2>
+
+<h3>Resources</h3>
+
+<p>The API is organized around two resources: <code>/users</code> and <code>/posts</code>. Resist the urge to map your A1 CLI commands to endpoints one-for-one. Think in resources. A user is a thing you can create, read, and list. A post is a thing you can create, read, list, search, and delete. The endpoints below follow from that framing.</p>
+
+<h3>Endpoints</h3>
+
+<table class="meta-table">
+  <tr><td><strong>Method</strong></td><td><strong>Path</strong></td><td><strong>Purpose</strong></td></tr>
+  <tr><td>POST</td><td>/users</td><td>Create a user. Body: <code>{"username": "..."}</code></td></tr>
+  <tr><td>GET</td><td>/users</td><td>List all users</td></tr>
+  <tr><td>GET</td><td>/users/{username}</td><td>Get one user by username</td></tr>
+  <tr><td>GET</td><td>/users/{username}/posts</td><td>Get all posts by that user</td></tr>
+  <tr><td>POST</td><td>/posts</td><td>Create a post. Body: <code>{"message": "..."}</code>. Requires <code>X-Username</code> header</td></tr>
+  <tr><td>GET</td><td>/posts</td><td>List posts. Supports <code>?q=</code>, <code>?limit=</code>, <code>?offset=</code></td></tr>
+  <tr><td>GET</td><td>/posts/{id}</td><td>Get one post by id</td></tr>
+  <tr><td>DELETE</td><td>/posts/{id}</td><td>Delete a post (hard delete)</td></tr>
+</table>
+
+<h3>Response shapes</h3>
+
+<p>Field names are exact and checked by the verifier. Bronze responses look like this:</p>
+
+<pre># Post
+{"id": 1, "username": "alice", "message": "hi", "created_at": "2026-04-13T14:01:32"}
+
+# User
+{"username": "alice", "created_at": "2026-04-13T14:01:32"}</pre>
+
+<p>List endpoints return bare JSON arrays. No envelope objects in bronze.</p>
+
+<h3>Validation</h3>
+
+<p>Use Pydantic models for request body validation and FastAPI's <code>Query()</code> for query parameter validation.</p>
+
+<ul>
+  <li><strong>message</strong> - non-empty string, max 500 characters. Bad input returns 422.</li>
+  <li><strong>username</strong> - 3 to 20 characters, regex <code>^[a-zA-Z0-9_]+$</code>. Bad input returns 422.</li>
+  <li><strong>limit</strong> - integer, 1 to 200, default 50. Out-of-range returns 422 (via <code>Query(ge=1, le=200)</code>).</li>
+  <li><strong>offset</strong> - integer, >= 0, default 0. Negative value returns 422 (via <code>Query(ge=0)</code>).</li>
+</ul>
+
+<h3>Status codes</h3>
+
+<table class="meta-table">
+  <tr><td><strong>Situation</strong></td><td><strong>Code</strong></td></tr>
+  <tr><td>Successful create (POST /users, POST /posts)</td><td>201</td></tr>
+  <tr><td>Successful read (any GET)</td><td>200</td></tr>
+  <tr><td>Successful delete</td><td>204</td></tr>
+  <tr><td>Missing <code>X-Username</code> header on POST /posts</td><td>400</td></tr>
+  <tr><td>Resource not found (post id, username)</td><td>404</td></tr>
+  <tr><td>POST /posts with unknown username</td><td>404</td></tr>
+  <tr><td>POST /users with duplicate username</td><td>409</td></tr>
+  <tr><td>Pydantic validation failure on body or query params</td><td>422</td></tr>
+</table>
+
+<p>Note: out-of-range <code>limit</code> and <code>offset</code> return 422, not 400. That is what Pydantic's <code>Query(ge=..., le=...)</code> produces. The 400 on missing <code>X-Username</code> is custom code in your handler.</p>
+
+<h3>Error body</h3>
+
+<p>Use the FastAPI default error shape: <code>{"detail": "..."}</code>. Same as what lecture 3.2 uses. You do not need to invent a custom error format.</p>
+
+<h3>The X-Username header</h3>
+
+<p>When a client creates a post, the server needs to know who is posting. In A2 we use a custom request header: <code>X-Username: alice</code>. Every <code>POST /posts</code> request must include this header. If it is missing, return 400. If the username does not exist in the database, return 404.</p>
+
+<p>This is not authentication. Anyone can put any username in that header and the server will accept it. We are not checking passwords or tokens. The pattern exists to introduce the idea that HTTP requests carry identity metadata, even before we have real auth. We will get to real auth in a later lecture.</p>
+
+<h3>Schema change from A1</h3>
+
+<p>A1 auto-created users on first post. If you posted as <code>alice</code> and there was no user named <code>alice</code>, A1 would create her silently. A2 does not do this. <code>POST /posts</code> with <code>X-Username: alice</code> when <code>alice</code> does not exist returns 404. Users must be created via <code>POST /users</code> first.</p>
+
+<p>This is a real behavior change, not just a wrapper. If you port your A1 database logic verbatim, your API will produce wrong results. Review your <code>db.py</code> post-creation path and remove the auto-create logic before building the API layer on top of it.</p>
+
+<h2>The verifier</h2>
+
+<h3>How to run</h3>
+
+<p>You need two terminals. In the first:</p>
+
+<pre>uvicorn main:app --port 8000</pre>
+
+<p>In the second:</p>
+
+<pre>python verify_api.py</pre>
+
+<p>The script prints a <code>PASS</code> or <code>FAIL</code> line for each check, then exits non-zero if anything failed. It uses random username suffixes on every run, so you do <strong>not</strong> need to delete <code>bbs.db</code> between runs. If you want a truly clean slate, stop the server, delete <code>bbs.db</code>, and restart.</p>
+
+<h3>What the provided script covers</h3>
+
+<p>The shipped <code>verify_api.py</code> verifies the following:</p>
+
+<p><strong>User checks:</strong></p>
+<ul>
+  <li>POST /users returns 201 on success, with <code>username</code> and <code>created_at</code> in the response body</li>
+  <li>POST /users returns 409 on duplicate username</li>
+  <li>POST /users returns 422 for a too-short username, invalid characters, or missing username field</li>
+  <li>GET /users returns 200 and includes the created users</li>
+  <li>GET /users/{username} returns 200 for an existing user, 404 for a missing one</li>
+</ul>
+
+<p><strong>Post checks:</strong></p>
+<ul>
+  <li>POST /posts with valid <code>X-Username</code> header returns 201, with <code>id</code>, <code>username</code>, <code>message</code>, <code>created_at</code> in the response</li>
+  <li>POST /posts without <code>X-Username</code> header returns 400</li>
+  <li>POST /posts with a username that does not exist returns 404</li>
+  <li>POST /posts with empty message, oversized message (501 chars), or missing message field returns 422</li>
+  <li>GET /posts returns 200 and a JSON array</li>
+  <li>GET /posts/{id} returns 200 for an existing post, 404 for a missing one</li>
+  <li>GET /users/{username}/posts returns 200 with only that user's posts, 404 for missing user</li>
+</ul>
+
+<p><strong>Search checks:</strong></p>
+<ul>
+  <li>GET /posts?q=keyword returns 200 and only matching posts</li>
+</ul>
+
+<h3>What you add for bronze</h3>
+
+<div class="callout">
+  <strong>Required for bronze.</strong> Three function stubs in <code>verify_api.py</code> are labeled <code>STUDENT TODO #1</code>, <code>#2</code>, and <code>#3</code>. You must implement all three and uncomment the calls in <code>main()</code>.
+</div>
+
+<p><strong>TODO #1 - <code>run_delete_checks(c, state)</code></strong> should verify:</p>
+<ul>
+  <li>DELETE on an existing post returns 204</li>
+  <li>After DELETE, GET on the same id returns 404</li>
+  <li>DELETE on a post id that does not exist returns 404</li>
+</ul>
+
+<p><code>state["alice_post_id"]</code> holds a post id created earlier in the run. You can use it (or create a new post specifically to delete). For the 404 case, pick a post id that is very unlikely to exist (e.g., 99999999).</p>
+
+<p><strong>TODO #2 - <code>run_pagination_checks(c, state)</code></strong> should verify:</p>
+<ul>
+  <li>GET /posts?limit=N returns at most N items</li>
+  <li>GET /posts?offset=K skips the first K items</li>
+  <li>GET /posts?limit=0 returns 422</li>
+  <li>GET /posts?limit=500 returns 422</li>
+  <li>GET /posts?offset=-1 returns 422</li>
+</ul>
+
+<p><strong>TODO #3 - <code>run_field_shape_checks(c, state)</code></strong> should verify that your response bodies contain <em>exactly</em> the fields the spec lists, with no extras and nothing missing. Specifically:</p>
+<ul>
+  <li>A user object (from <code>POST /users</code>, <code>GET /users/{username}</code>, and items in <code>GET /users</code>) has exactly <code>{username, created_at}</code></li>
+  <li>A post object (from <code>POST /posts</code>, <code>GET /posts/{id}</code>, and items in <code>GET /posts</code>) has exactly <code>{id, username, message, created_at}</code></li>
+  <li>No stray fields. An extra <code>email</code>, <code>updated_at</code>, or <code>user_id</code> is a fail.</li>
+</ul>
+
+<p>This check exists because it is very easy to ship an endpoint that "works" in the happy path but leaks extra fields from your database rows. Reading the spec and comparing it to what your API actually returns is a real engineering skill - do it yourself, do not just ask your agent to make the check pass.</p>
+
+<p>You may add more assertions if you catch edge cases the spec does not mention. Mention them in your README.</p>
+
+<h2>A reminder about PATCH (silver only)</h2>
+
+<div class="callout">
+  <strong>PATCH</strong> is the partial-update sibling of PUT: you send only the fields you want to change, and fields you omit are left alone. Silver uses PATCH for editing user bios and post messages. If you are targeting bronze, you can skip this section.
+</div>
+
+<h2>Tiers</h2>
+
+<div class="tier tier-bronze">
+  <strong>Bronze</strong><br>
+  All 8 endpoints work per the spec above. The shipped <code>verify_api.py</code> passes. You implemented <code>run_delete_checks()</code>, <code>run_pagination_checks()</code>, and <code>run_field_shape_checks()</code>, uncommented all three calls, and every assertion passes. README covers all required sections.
+</div>
+
+<div class="tier tier-silver">
+  <strong>Silver</strong><br>
+  Everything in bronze, plus:
+  <ul>
+    <li><strong>User profile fields.</strong> Add <code>bio</code> (optional string, max 200 chars) and <code>post_count</code> (computed from the posts table) to all user responses:<br>
+    <code>{"username": "alice", "created_at": "...", "bio": "wolf in dog suit", "post_count": 14}</code></li>
+    <li><strong>PATCH /users/{username}</strong> to update bio. Returns 200 on success, 404 if user not found, 422 if the bio exceeds the limit.</li>
+    <li><strong>PATCH /posts/{id}</strong> to edit message text. Adds <code>updated_at</code> to the post response. You must pick an ownership policy: enforce via <code>X-Username</code> header match (only the original author can edit), or allow anyone to edit (defensible since <code>X-Username</code> is not real auth anyway). Document your choice in the README.</li>
+    <li><strong>GET /posts?username=alice</strong> to filter posts by author. Composable with <code>?q=</code> and pagination.</li>
+    <li>Extend <code>verify_api.py</code> with assertions for the silver features you added.</li>
+  </ul>
+</div>
+
+<div class="tier tier-gold">
+  <strong>Gold</strong><br>
+  Everything in silver, plus one of the following (or something of comparable scope):
+  <ul>
+    <li><strong>Cursor-based pagination.</strong> Replace <code>?offset=</code> with <code>?cursor=</code> on GET /posts. The cursor encodes the last-seen post id. Response changes to an envelope: <code>{"posts": [...], "next_cursor": "eyJpZCI6IDUwfQ=="}</code>. README explains why cursors handle concurrent inserts better than offsets.</li>
+    <li><strong>Boards/topics.</strong> Add <code>/boards</code> and <code>/boards/{name}/posts</code> endpoints. Posts gain a <code>board</code> field. Requires a schema migration and a second resource.</li>
+    <li><strong>/feed endpoint.</strong> GET /feed returns the N most recent posts across all users. Optional <code>?since=&lt;timestamp&gt;</code> to get only newer posts.</li>
+    <li><strong>Reactions.</strong> <code>POST /posts/{id}/reactions</code> with <code>{"username": "...", "kind": "+1"}</code> and <code>DELETE /posts/{id}/reactions/{username}</code>. Introduces an association table.</li>
+    <li><strong>Surprise us.</strong> Build something you would want to show off.</li>
+  </ul>
+  Extend <code>verify_api.py</code> with assertions for your gold feature too.
+</div>
+
+<h2>README requirements</h2>
+
+<ol>
+  <li><strong>How to run</strong> - list dependencies, the uvicorn command, any setup steps (e.g., if you need to run a migration from your A1 database).</li>
+  <li><strong>Tier targeted</strong> - bronze, silver, or gold.</li>
+  <li><strong>Design decisions</strong> - at least 3 bullets. Good topics: why you chose this URL shape for a given endpoint, why a particular status code, hard vs soft delete and why, raw SQL vs ORM (did you keep A1's raw SQL or switch to the ORM?).</li>
+  <li><strong>Schema changes from A1</strong> - show the <code>CREATE TABLE</code> diff inline. Even if the change is small (e.g., removing the auto-create-user behavior from your insert logic), say what changed and why.</li>
+  <li><strong>What you added to verify_api.py</strong> - list your new assertions and any edge cases you checked beyond what the spec required.</li>
+  <li><strong>A short paragraph on X-Username and auth.</strong> The header is not authentication - anyone could send any username. What would need to change for real authentication? You do not need the right answer. The goal is to think about the question before later lectures answer it.</li>
+  <li><strong>Silver/gold only:</strong> what you added and why.</li>
+</ol>
+
+<h2>What to submit</h2>
+
+<ol>
+  <li>Create a branch: <code>git checkout -b bbs-webserver-&lt;your-github-username&gt;</code></li>
+  <li>Put your code in a directory: <code>assignments/bbs-webserver/&lt;your-github-username&gt;/</code></li>
+  <li>Push and open a PR titled "BBS Webserver - &lt;your-name&gt;"</li>
+</ol>
+
+<h2>A note on coding agents</h2>
+
+<p>You are encouraged to use your coding agent throughout this assignment. The verifier is the floor - your agent can iterate against it until all checks pass. But the verifier cannot check your design decisions, your README, or what you chose to add to the verification script itself. Those are the ceiling. The ownership policy for PATCH, the reflection on X-Username as a non-authentication pattern, the edge cases you decided were worth asserting - those are yours to think through. The README sections are where you demonstrate you understood what you built, not just that an agent built something that passes the script.</p>
+
+<h2>Grading</h2>
+
+<table class="meta-table">
+  <tr><td>Bronze</td><td>Satisfactory: you demonstrated the core skills</td></tr>
+  <tr><td>Silver</td><td>Good: you extended the design thoughtfully</td></tr>
+  <tr><td>Gold</td><td>Excellent: you built something impressive</td></tr>
+</table>
+
+</body>
+</html>

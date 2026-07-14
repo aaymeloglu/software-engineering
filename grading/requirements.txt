@@ -1,0 +1,8 @@
+# Grading harness dependencies.
+pyyaml            # config.yaml + roster.yaml loading
+pytest            # the harness's own tests, and the A3 test-runner
+
+# The A4 serving/CORS shims (assignments/a4/cors_shim.py, mock_backend.py) also need:
+fastapi
+uvicorn[standard]
+starlette

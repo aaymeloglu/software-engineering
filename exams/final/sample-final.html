@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>Final Exam — Sample</title>
+<style>
+@page { size: letter; margin: 0.7in 0.8in 0.7in 0.8in; }
+body { font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+       font-size: 11pt; line-height: 1.45; color: #111; }
+h1 { font-size: 22pt; margin: 0 0 0.1em 0; border-bottom: 2px solid #333; padding-bottom: 0.25em; }
+.subtitle { font-size: 12pt; color: #555; margin: 0.2em 0 1.2em 0; }
+h2 { font-size: 12pt; text-transform: uppercase; letter-spacing: 0.04em; color: #333;
+     margin: 1.3em 0 0.4em 0; }
+h3 { font-size: 11pt; margin: 1.1em 0 0.3em 0; text-transform: uppercase;
+     letter-spacing: 0.04em; color: #333; }
+code { font-family: "SF Mono", "Menlo", "Monaco", monospace; font-size: 9.6pt;
+       background: #f1f1f4; padding: 0.06em 0.3em; border-radius: 3px; }
+pre { background: #f1f1f4; padding: 0.55em 0.8em; border-radius: 4px;
+      font-family: "SF Mono", "Menlo", "Monaco", monospace; font-size: 9.0pt;
+      line-height: 1.38; white-space: pre-wrap; overflow-wrap: break-word; margin: 0.5em 0; }
+table { width: 100%; border-collapse: collapse; margin: 0.8em 0; font-size: 9.8pt; }
+td, th { padding: 0.35em 0.6em; border: 1px solid #ddd; vertical-align: top; text-align: left; }
+th { background: #fafafa; }
+.meta-table td:first-child { font-weight: bold; background: #fafafa; width: 26%; }
+ol, ul { margin: 0.4em 0 0.5em 1.1em; padding-left: 0.7em; }
+ol > li, ul > li { margin-bottom: 0.35em; }
+.question { page-break-before: always; }
+.q-header { display: flex; justify-content: space-between; align-items: baseline;
+            border-bottom: 1px solid #333; padding-bottom: 0.3em; margin-bottom: 0.6em; }
+.q-id { font-size: 14pt; font-weight: bold; }
+.q-meta { font-size: 9.5pt; color: #555; text-align: right; }
+.answer { margin-top: 1.1em; background: #eef6ee; border: 1px solid #cfe6cf;
+          border-radius: 5px; padding: 0.5em 0.9em 0.2em 0.9em; }
+.answer-label { display: inline-block; background: #cfe6cf; color: #1f4d1f;
+                font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.05em;
+                padding: 0.1em 0.5em; border-radius: 3px; margin-bottom: 0.3em; }
+.answer p, .answer ol, .answer ul { font-size: 10pt; }
+.legend td:first-child { font-weight: bold; white-space: nowrap; }
+.name-field { float: right; font-size: 10.5pt; margin-top: 0.2em; }
+.name-field .blank { display: inline-block; border-bottom: 1px solid #333; width: 2.4in; height: 1em; }
+.lines { margin-top: 1em; }
+</style>
+</head>
+<body>
+<div class="name-field">Name: <span class="blank">&nbsp;</span></div><h1>Final Exam — Sample</h1><p class='subtitle'>Software Engineering — UATX — Spring 2026</p><table class='meta-table'><tr><td>Format</td><td>Pencil and paper. No computer, phone, notes, or coding agent.</td></tr><tr><td>Time</td><td>150 minutes.</td></tr><tr><td>Length</td><td>Seven questions, one to two per category.</td></tr><tr><td>Coverage</td><td>Lectures 5.1 through 10.1 (JS/TS and the browser, React, deployment, Docker, CI/CD, concurrency, security, agents), plus assignments 3 and 4.</td></tr><tr><td>Categories</td><td>Trace-through, spot the bug, specification, code review, short design.</td></tr><tr><td>Grading</td><td>Curved. The exam is intentionally hard; expect to leave some parts unfinished.</td></tr></table><h3>How this exam thinks about agents</h3><p>The whole semester has leaned into coding agents as the way real engineers work, so an exam that asks you to write working code from scratch on paper would punish you for taking the course seriously. Instead, every question is built around a skill the agent can't do for you: reading code carefully, finding bugs by inspection, writing the spec you'd hand to the agent, judging which of two implementations is better, and making design calls under uncertainty.</p><h3>How to use this sample</h3><p>This is a representative exam, not the actual one -- the real final will have seven questions in the same five categories at roughly the same difficulty. Solutions are in a separate document; try the questions cold first, then check.</p>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">Question 1</span>
+    <span class="q-meta">Trace-through</span></div>
+  <p>The script runs to completion. Give the value printed at A, B, C, and D.</p>
+<pre>const todos = [
+  { id: 1, title: &quot;read notes&quot;,   done: true,  priority: 2 },
+  { id: 2, title: &quot;write fetch&quot;,  done: false, priority: 1 },
+  { id: 3, title: &quot;pick up milk&quot;, done: false, priority: 3 },
+  { id: 4, title: &quot;call the vet&quot;, done: true,  priority: 1 },
+];
+
+const a = todos.filter(t =&gt; !t.done).map(t =&gt; t.title);
+console.log(&quot;A:&quot;, a);                                          // ___
+
+const b = todos.filter(t =&gt; t.done).length;
+console.log(&quot;B:&quot;, b);                                          // ___
+
+const c = todos.filter(t =&gt; !t.done).reduce((s, t) =&gt; s + t.priority, 0);
+console.log(&quot;C:&quot;, c);                                          // ___
+
+console.log(&quot;D:&quot;, 1 === &quot;1&quot;, 0 == false, null === undefined);  // ___</pre>
+  <div class="lines" style="height: 4.0in;">&nbsp;</div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">Question 2</span>
+    <span class="q-meta">Trace-through</span></div>
+  <p>A promo code grants $10 of account credit, once per user. On a flaky connection a user double-taps redeem, so two identical requests arrive at nearly the same instant. The handler is below; both requests run their SELECT before either runs its INSERT.</p>
+<pre>def redeem(user_id, code):
+    already = db.execute(
+        text(&quot;SELECT 1 FROM redemptions WHERE user_id = :u AND code = :c&quot;),
+        {&quot;u&quot;: user_id, &quot;c&quot;: code},
+    ).first()
+    if already:
+        raise HTTPException(409, &quot;already redeemed&quot;)
+    db.execute(text(&quot;INSERT INTO redemptions (user_id, code) VALUES (:u, :c)&quot;),
+               {&quot;u&quot;: user_id, &quot;c&quot;: code})
+    db.execute(text(&quot;UPDATE accounts SET credit = credit + 10 WHERE user_id = :u&quot;),
+               {&quot;u&quot;: user_id})</pre>
+<ol><li>What happens, and how much credit does the user end up with?</li><li>A teammate wraps the whole handler in one transaction (<code>with db.engine.begin() as conn:</code> for each request). Does that fix the issue? Explain.</li><li>What actually prevents it? Give one concrete mechanism and why it is atomic.</li></ol>
+  <div class="lines" style="height: 4.0in;">&nbsp;</div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">Question 3</span>
+    <span class="q-meta">Spot the bug</span></div>
+  <p>Your agent produced this submit handler to POST a new message and show it. It works when you click slowly on a good connection. Find at least three defects; for each, one sentence on what goes wrong and one on the fix.</p>
+<pre>const form  = document.querySelector(&quot;#new&quot;)  as HTMLFormElement;
+const input = document.querySelector(&quot;#text&quot;) as HTMLInputElement;
+const list  = document.querySelector(&quot;#list&quot;) as HTMLUListElement;
+
+form.addEventListener(&quot;submit&quot;, async (event) =&gt; {
+  const response = await fetch(&quot;/api/messages&quot;, {
+    method: &quot;POST&quot;,
+    body: { text: input.value },
+  });
+  const created = await response.json();
+  const li = document.createElement(&quot;li&quot;);
+  li.textContent = input.value;
+  list.append(li);
+});</pre>
+  <div class="lines" style="height: 4.5in;">&nbsp;</div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">Question 4</span>
+    <span class="q-meta">Spot the bug</span></div>
+  <p>Your agent produced this endpoint for a project-management app (<code>TaskUpdate</code> is a Pydantic model). It parameterizes its values and it checks authorization. Read it carefully.</p>
+<pre>@app.patch(&quot;/api/projects/{project_id}/tasks/{task_id}&quot;)
+def update_task(project_id: int, task_id: int, body: TaskUpdate,
+                user: User = Depends(current_user)):
+    with engine.begin() as conn:
+        member = conn.execute(
+            text(&quot;SELECT 1 FROM project_members &quot;
+                 &quot;WHERE project_id = :p AND user_id = :u&quot;),
+            {&quot;p&quot;: project_id, &quot;u&quot;: user.id},
+        ).first()
+        if member is None:
+            raise HTTPException(403, &quot;not a member of this project&quot;)
+
+        fields = body.model_dump(exclude_unset=True)
+        if not fields:
+            raise HTTPException(400, &quot;nothing to update&quot;)
+        set_clause = &quot;, &quot;.join(f&quot;{col} = :{col}&quot; for col in fields)
+        result = conn.execute(
+            text(f&quot;UPDATE tasks SET {set_clause} WHERE id = :id&quot;),
+            {**fields, &quot;id&quot;: task_id},
+        )
+    if result.rowcount == 0:
+        raise HTTPException(404)
+    return {&quot;ok&quot;: True}</pre>
+<ol><li>Name two things this endpoint does well, security-wise.</li><li>It has a serious access-control hole. Describe it, give a concrete request that exploits it, and give the fix.</li><li>The <code>SET</code> clause is built from whatever fields are in the request body. Explain the risk that creates, and what <code>TaskUpdate</code> has to guarantee for it to be safe.</li></ol>
+  <div class="lines" style="height: 4.0in;">&nbsp;</div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">Question 5</span>
+    <span class="q-meta">Specification</span></div>
+  <p>Feature request to your agent: &quot;As the user types in the search box, show matching products.&quot; The agent&#x27;s first cut is below, and it works in a quick demo. Before you let it ship, write the spec you would hand back. Do not write code.</p>
+<pre>function ProductSearch() {
+  const [results, setResults] = useState([]);
+  const [query, setQuery] = useState(&quot;&quot;);
+  useEffect(() =&gt; {
+    fetch(`/api/products?q=${query}`)
+      .then(r =&gt; r.json())
+      .then(setResults);
+  }, [query]);
+  return (
+    &lt;div&gt;
+      &lt;input value={query} onChange={e =&gt; setQuery(e.target.value)} /&gt;
+      &lt;ul&gt;{results.map(p =&gt; &lt;li key={p.id}&gt;{p.name} (${p.price})&lt;/li&gt;)}&lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+<ol><li>The display states this UI must handle -- name them.</li><li>Two behaviors it is currently missing or getting wrong (look hard at a fast typist on a flaky network).</li><li>One product decision that is ambiguous, and the call you would make.</li></ol>
+  <div class="lines" style="height: 4.0in;">&nbsp;</div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">Question 6</span>
+    <span class="q-meta">Code review</span></div>
+  <p>This workflow runs the test suite on every push; two of the tests are shown below. On the developer&#x27;s laptop the suite passes every time. In CI, <code>test_lists_single_user</code> fails about half the time.</p>
+<pre># .github/workflows/test.yml
+name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with: { python-version: &quot;3.14&quot; }
+      - run: pip install -r requirements.txt
+      - run: pytest -n auto        # runs tests in parallel across CPUs</pre>
+<pre># conftest.py + test_users.py  (app talks to the module-level db.engine)
+@pytest.fixture
+def client():
+    return TestClient(app)
+
+def test_create_user(client):
+    r = client.post(&quot;/users&quot;, json={&quot;username&quot;: &quot;alice&quot;})
+    assert r.status_code == 201
+
+def test_lists_single_user(client):
+    users = client.get(&quot;/users&quot;).json()
+    assert len(users) == 1</pre>
+<ol><li>Why does <code>test_lists_single_user</code> pass locally but fail intermittently in CI?</li><li>Is the bug in the workflow or in the tests? Point to the specific cause.</li><li>Give two fixes -- one to the tests, one you could make to the workflow -- and say which is the real fix.</li></ol>
+  <div class="lines" style="height: 3.5in;">&nbsp;</div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">Question 7</span>
+    <span class="q-meta">Short design</span></div>
+  <p>Your agent generated this Dockerfile for the FastAPI service. It is the team&#x27;s deploy image: pushed to a shared registry (GitHub Container Registry) that teammates and the deploy server pull from, and rebuilt on every push to <code>main</code>. The project directory also contains a <code>.env</code> with more secrets, and there is no <code>.dockerignore</code>.</p>
+<pre>FROM python:3.14
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# image-processing system library the app shells out to
+RUN apt-get update &amp;&amp; apt-get install -y imagemagick
+
+ENV JWT_SECRET=&quot;prod-signing-key-7f3a9c2b&quot;
+ENV DATABASE_URL=&quot;postgresql://app:s3cr3t@db.internal:5432/app&quot;
+
+CMD uvicorn app:app --host 0.0.0.0 --port $PORT</pre>
+<ol><li>The team rebuilds this image many times a day as they edit application code, and rebuilds are slower than they should be. One thing here is already done right and one step is the culprit -- identify both, and restructure so a one-line change to <code>app.py</code> rebuilds quickly.</li><li>This image is pushed to a shared registry. What secrets does it expose, by what mechanisms, and how do you keep them out of the image?</li><li>You realize this image was already pushed last week. You delete the secrets from the Dockerfile and add a <code>.dockerignore</code> now. Is that enough? What do you actually do?</li></ol>
+  <div class="lines" style="height: 4.0in;">&nbsp;</div>
+</div>
+</body>
+</html>

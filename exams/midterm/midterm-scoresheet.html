@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page {
+    size: letter;
+    margin: 0.85in 0.9in 0.9in 0.9in;
+  }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.45;
+    color: #111;
+  }
+  h1 {
+    font-size: 22pt;
+    margin: 0 0 0.1em 0;
+    border-bottom: 2px solid #333;
+    padding-bottom: 0.25em;
+  }
+  .subtitle {
+    font-size: 12pt;
+    color: #555;
+    margin-top: 0.2em;
+    margin-bottom: 1.8em;
+  }
+  table.score {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5em;
+    font-size: 12pt;
+  }
+  table.score th,
+  table.score td {
+    border: 1px solid #333;
+    padding: 0.85em 0.9em;
+    vertical-align: middle;
+  }
+  table.score th {
+    background: #f1f1f4;
+    text-align: left;
+    font-size: 10.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  table.score th.q-col,
+  table.score td.q-num {
+    width: 0.6in;
+    text-align: center;
+  }
+  table.score td.q-num {
+    font-weight: bold;
+  }
+  table.score th.score-col,
+  table.score td.score-col {
+    text-align: center;
+    width: 1.6in;
+    font-variant-numeric: tabular-nums;
+  }
+  table.score tr.total td {
+    background: #fafafa;
+    font-weight: bold;
+    font-size: 13pt;
+    padding-top: 1em;
+    padding-bottom: 1em;
+  }
+  table.score tr.total td.score-col {
+    font-size: 13.5pt;
+  }
+</style>
+</head>
+<body>
+
+<h1>Midterm &mdash; Score Sheet</h1>
+<p class="subtitle">Software Engineering &mdash; UATX &mdash; Spring 2026</p>
+
+<table class="score">
+  <thead>
+    <tr>
+      <th class="q-col">Q</th>
+      <th>Topic</th>
+      <th class="score-col">Score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="q-num">1</td>
+      <td>Trace-through</td>
+      <td class="score-col">______ / 10</td>
+    </tr>
+    <tr>
+      <td class="q-num">2</td>
+      <td>Spot the bug</td>
+      <td class="score-col">______ / 10</td>
+    </tr>
+    <tr>
+      <td class="q-num">3</td>
+      <td>Specification</td>
+      <td class="score-col">______ / 10</td>
+    </tr>
+    <tr>
+      <td class="q-num">4</td>
+      <td>Code review</td>
+      <td class="score-col">______ / 10</td>
+    </tr>
+    <tr>
+      <td class="q-num">5</td>
+      <td>Short design</td>
+      <td class="score-col">______ / 10</td>
+    </tr>
+    <tr class="total">
+      <td colspan="2" style="text-align: right;">Total</td>
+      <td class="score-col">______ / 50</td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>

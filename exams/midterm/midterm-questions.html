@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page {
+    size: letter;
+    margin: 0.85in 0.9in 0.9in 0.9in;
+  }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.45;
+    color: #111;
+  }
+  h1 {
+    font-size: 22pt;
+    margin: 0 0 0.1em 0;
+    border-bottom: 2px solid #333;
+    padding-bottom: 0.25em;
+  }
+  .subtitle {
+    font-size: 12pt;
+    color: #555;
+    margin-top: 0.2em;
+    margin-bottom: 1.4em;
+  }
+  h3 {
+    font-size: 11pt;
+    margin: 1.1em 0 0.3em 0;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #333;
+  }
+  code {
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 9.8pt;
+    background: #f1f1f4;
+    padding: 0.08em 0.3em;
+    border-radius: 3px;
+  }
+  pre {
+    background: #f1f1f4;
+    padding: 0.6em 0.85em;
+    border-radius: 4px;
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 9.3pt;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    margin: 0.5em 0;
+  }
+  .meta-table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 10.5pt; }
+  .meta-table td { padding: 0.4em 0.7em; border: 1px solid #ddd; vertical-align: top; }
+  .meta-table td:first-child { font-weight: bold; background: #fafafa; width: 28%; }
+
+  .draft-note {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    padding: 0.7em 1em;
+    margin: 1.2em 0;
+    border-radius: 5px;
+    font-size: 10pt;
+  }
+
+  .name-field {
+    float: right;
+    font-size: 10.5pt;
+    margin-top: 0.2em;
+  }
+  .name-field .blank {
+    display: inline-block;
+    border-bottom: 1px solid #333;
+    width: 2.4in;
+    height: 1em;
+  }
+
+  .question {
+    page-break-before: always;
+  }
+  .answer-page {
+    page-break-before: always;
+  }
+  .q-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.3em;
+    margin-bottom: 0.7em;
+  }
+  .q-header .q-id { font-size: 14pt; font-weight: bold; }
+  .q-header .q-meta { font-size: 10pt; color: #555; }
+  .q-stem ol, .q-stem ul {
+    margin: 0.5em 0 0.5em 1.2em;
+    padding-left: 0.7em;
+  }
+  .q-stem ol > li { margin-bottom: 0.4em; }
+  .q-stem ul > li { margin-bottom: 0.3em; }
+  .lines {
+    margin-top: 1em;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================== -->
+<!-- COVER                                                          -->
+<!-- ============================================================== -->
+
+<div class="name-field">Name: <span class="blank">&nbsp;</span></div>
+<h1>Midterm</h1>
+<p class="subtitle">Software Engineering &mdash; UATX &mdash; Spring 2026</p>
+
+<table class="meta-table">
+  <tr><td>Format</td><td>Pencil and paper. No computer, phone, notes, or coding agent.</td></tr>
+  <tr><td>Time</td><td>75 minutes (one class).</td></tr>
+  <tr><td>Length</td><td>Five questions on the actual exam, one from each section.</td></tr>
+  <tr><td>Coverage</td><td>Lectures 1.1 through 4.2 (git, files+SQL, REST/FastAPI, testing) plus assignments 1, 2, and 3.</td></tr>
+  <tr><td>Sections</td><td>Trace-through, spot the bug, specification, code review, short design.</td></tr>
+</table>
+
+<h3>How this exam thinks about agents</h3>
+
+<p>The whole semester has leaned into coding agents as the way real engineers work, so an exam that asks students to write working code from scratch on paper would punish them for taking the course seriously. Instead, every question is built around a skill the agent can't do for them: reading code carefully, finding bugs by inspection, writing the spec they'd hand to the agent, judging which of two implementations is better, and making design calls under uncertainty.</p>
+
+
+<!-- ============================================================== -->
+<!-- Q1 &mdash; SQLAlchemy transactions (formerly 1B)               -->
+<!-- ============================================================== -->
+
+<div class="question">
+<div class="q-header">
+  <span class="q-id">Question 1</span>
+  <span class="q-meta">Trace-through</span>
+</div>
+
+<div class="q-stem">
+
+<p>This Python script runs to completion. Predict the value printed at A, B, and C. (<code>.scalar()</code> on a query result returns the single value from the first column of the first row &mdash; here, the count.)</p>
+
+<pre>from sqlalchemy import create_engine, text
+
+engine = create_engine("sqlite:///:memory:")
+
+with engine.begin() as conn:
+    conn.execute(text("""
+        CREATE TABLE notes (id INTEGER PRIMARY KEY, body TEXT)
+    """))
+    conn.execute(text("INSERT INTO notes (body) VALUES (:b)"), {"b": "first"})
+    conn.execute(text("INSERT INTO notes (body) VALUES (:b)"), {"b": "second"})
+
+try:
+    with engine.begin() as conn:
+        conn.execute(
+            text("INSERT INTO notes (body) VALUES (:b)"), {"b": "third"}
+        )
+        n = conn.execute(text("SELECT COUNT(*) FROM notes")).scalar()
+        print("A:", n)                           # ___
+        raise RuntimeError("oops")
+except RuntimeError:
+    pass
+
+with engine.begin() as conn:
+    n = conn.execute(text("SELECT COUNT(*) FROM notes")).scalar()
+print("B:", n)                                   # ___
+
+with engine.begin() as conn:
+    conn.execute(text("UPDATE notes SET body = 'OOPS' WHERE id = 1"))
+    conn.execute(text("INSERT INTO notes (body) VALUES (:b)"), {"b": "fourth"})
+
+with engine.begin() as conn:
+    rows = conn.execute(
+        text("SELECT id, body FROM notes ORDER BY id")
+    ).all()
+print("C:", [(r.id, r.body) for r in rows])      # ___</pre>
+
+<p>For B, write one short sentence explaining <em>why</em>.</p>
+
+</div>
+<div class="answer-page"></div>
+</div>
+
+
+<!-- ============================================================== -->
+<!-- Q2 &mdash; Test file: isolation + assertions                   -->
+<!-- ============================================================== -->
+
+<div class="question">
+<div class="q-header">
+  <span class="q-id">Question 2</span>
+  <span class="q-meta">Spot the bug</span>
+</div>
+
+<div class="q-stem">
+
+<p>Your agent produced this test file for the BBS webserver from assignment 2. The tests pass on the first run.</p>
+
+<pre># conftest.py
+import pytest
+from fastapi.testclient import TestClient
+from main import app
+
+@pytest.fixture
+def client():
+    return TestClient(app)
+
+
+# test_users.py
+def test_create_user_and_list_includes_them(client):
+    r = client.post("/users", json={"username": "alice"})
+    assert r.status_code == 201
+
+    r = client.get("/users")
+    users = r.json()
+    assert len(users) &gt;= 1
+    assert any(u["username"] == "alice" for u in users)
+
+
+def test_create_duplicate_username_returns_409(client):
+    client.post("/users", json={"username": "bob"})
+    r = client.post("/users", json={"username": "bob"})
+    assert r.status_code == 409
+
+
+def test_get_user_returns_user_data(client):
+    r = client.get("/users/alice")
+    assert r.status_code == 200
+    assert r.json()["username"] == "alice"</pre>
+
+<p>The tests pass once. <strong>Find at least three problems with this test file.</strong> For each, one sentence on what's wrong, and one sentence on how you'd fix it.</p>
+
+</div>
+<div class="answer-page"></div>
+</div>
+
+
+<!-- ============================================================== -->
+<!-- Q3 &mdash; Notification preferences schema                     -->
+<!-- ============================================================== -->
+
+<div class="question">
+<div class="q-header">
+  <span class="q-id">Question 3</span>
+  <span class="q-meta">Specification</span>
+</div>
+
+<div class="q-stem">
+
+<p>You're adding notification preferences to an app. Each user has settings for which events generate notifications, and via which channels. The known event types right now are: <code>new_message</code>, <code>new_follower</code>, <code>mentioned_in_comment</code>, <code>group_invite</code>. You expect the product team to ship roughly 5&ndash;10 new event types over the next year. Channels are stable and won't change: <code>email</code>, <code>push</code>, <code>in_app</code>. For every <em>(event, channel)</em> pair, the user can independently choose whether they want it. The default for new users is "everything on," with the one exception that <code>mentioned_in_comment</code> over <code>push</code> is off.</p>
+
+<p>Write the schema spec. Cover all three:</p>
+
+<ol>
+  <li><strong>The shape decision.</strong> You could put one column per <em>(event, channel)</em> directly on the <code>users</code> table &mdash; a "wide" approach &mdash; or keep preferences in a separate table. Pick one and in one sentence say why, naming one specific concern from the spec above that drives the call.</li>
+  <li><strong>The actual SQL</strong> &mdash; <code>CREATE TABLE</code> statement(s) with column types, NOT NULL flags, defaults, and any keys.</li>
+  <li><strong>One ambiguity in the product spec above</strong> that affects the data model and that you'd want to nail down before handing this off to your agent. State the ambiguity in one sentence, and the call you'd make in one sentence.</li>
+</ol>
+
+</div>
+
+</div>
+
+
+<!-- ============================================================== -->
+<!-- Q4 &mdash; Monster vs focused tests for checkout               -->
+<!-- ============================================================== -->
+
+<div class="question">
+<div class="q-header">
+  <span class="q-id">Question 4</span>
+  <span class="q-meta">Code review</span>
+</div>
+
+<div class="q-stem">
+
+<p>Two test files for the checkout API of an e-commerce app. The product spec: adding an item to the cart returns 201; checkout charges payment, creates a paid <code>Order</code>, and empties the cart; checkout against an empty cart returns 400.</p>
+
+<p><strong>Version A:</strong></p>
+<pre>def test_complete_checkout_flow(client, test_db):
+    """Smoke test for the new-checkout release."""
+    r = client.post("/api/cart/items", json={"sku": "X", "qty": 2})
+    assert r.status_code == 201
+    r = client.post("/api/cart/items", json={"sku": "Y", "qty": 1})
+    assert r.status_code == 201
+
+    cart = client.get("/api/cart").json()
+    assert len(cart["items"]) == 2
+    assert cart["total_cents"] == 4500
+
+    r = client.post("/api/checkout", json={"payment_token": "tok_test"})
+    assert r.status_code == 200
+    order_id = r.json()["order_id"]
+
+    cart = client.get("/api/cart").json()
+    assert cart["items"] == []  # cart emptied by checkout
+
+    order = client.get(f"/api/orders/{order_id}").json()
+    assert order["status"] == "paid"
+    assert order["total_cents"] == 4500</pre>
+
+<p><strong>Version B:</strong></p>
+<pre>def test_add_item_to_cart(client, test_db):
+    r = client.post("/api/cart/items", json={"sku": "X", "qty": 2})
+    assert r.status_code == 201
+    assert r.json()["sku"] == "X"
+
+def test_get_cart_lists_added_items(client, test_db):
+    client.post("/api/cart/items", json={"sku": "X", "qty": 2})
+    client.post("/api/cart/items", json={"sku": "Y", "qty": 1})
+    items = client.get("/api/cart").json()["items"]
+    assert len(items) == 2
+
+def test_cart_total_sums_line_items(client, test_db):
+    client.post("/api/cart/items", json={"sku": "X", "qty": 2})  # X is $15
+    client.post("/api/cart/items", json={"sku": "Y", "qty": 1})  # Y is $15
+    assert client.get("/api/cart").json()["total_cents"] == 4500
+
+def test_checkout_creates_paid_order(client, test_db):
+    client.post("/api/cart/items", json={"sku": "X", "qty": 2})
+    r = client.post("/api/checkout", json={"payment_token": "tok_test"})
+    assert r.status_code == 200
+    order_id = r.json()["order_id"]
+    assert client.get(f"/api/orders/{order_id}").json()["status"] == "paid"
+
+def test_checkout_with_empty_cart_400s(client, test_db):
+    r = client.post("/api/checkout", json={"payment_token": "tok_test"})
+    assert r.status_code == 400</pre>
+
+<p>Pick one. Then:</p>
+
+<ol>
+  <li>Justify in three to five sentences. Mention at least two specific reasons.</li>
+  <li>Name <em>one specific behavior the version you DID NOT pick handles better</em>, in one sentence.</li>
+  <li><strong>What other tests would you add</strong> to your picked version? Name two or three, one sentence each.</li>
+</ol>
+
+</div>
+</div>
+
+
+<!-- ============================================================== -->
+<!-- Q5 &mdash; Test boundary for charge_user                       -->
+<!-- ============================================================== -->
+
+<div class="question">
+<div class="q-header">
+  <span class="q-id">Question 5</span>
+  <span class="q-meta">Short design</span>
+</div>
+
+<div class="q-stem">
+
+<p>You need to test this function:</p>
+
+<pre>import stripe
+from sqlalchemy import text
+
+class ChargeError(Exception): pass
+
+def charge_user(user_id: int, amount_cents: int, db) -&gt; str:
+    """Charge the user's saved payment method via Stripe.
+    Returns the Stripe charge id. Raises ChargeError on failure.
+    Records an audit row in 'charges' on success."""
+    row = db.execute(
+        text("SELECT stripe_pm_id FROM payment_methods WHERE user_id = :u"),
+        {"u": user_id},
+    ).first()
+    if row is None:
+        raise ChargeError("no payment method on file")
+
+    intent = stripe.PaymentIntent.create(
+        amount=amount_cents,
+        currency="usd",
+        payment_method=row.stripe_pm_id,
+        confirm=True,
+    )
+    if intent.status != "succeeded":
+        raise ChargeError(f"stripe returned {intent.status}")
+
+    db.execute(
+        text("INSERT INTO charges (user_id, amount_cents, stripe_id) "
+             "VALUES (:u, :a, :s)"),
+        {"u": user_id, "a": amount_cents, "s": intent.id},
+    )
+    db.commit()
+    return intent.id</pre>
+
+<p>Sketch the test plan. Cover all three:</p>
+
+<ol>
+  <li><strong>Boundaries.</strong> For each of (a) the database and (b) the Stripe API, say whether your tests use the real thing, an in-memory or test version, or a mock &mdash; and why, in one sentence each.</li>
+  <li><strong>Three tests, one per behavior</strong>: (i) the lookup of the payment method, (ii) the Stripe charge call, (iii) the audit-row insert. For each, give a <code>def test_*</code> name and 3&ndash;5 lines of pseudo-code showing the key assertion.</li>
+  <li><strong>One obvious-looking test you would NOT write,</strong> with one sentence on why &mdash; something a less-careful tester would think they need but would actually be noise or a trap.</li>
+</ol>
+
+</div>
+<div class="answer-page"></div>
+</div>
+
+</body>
+</html>

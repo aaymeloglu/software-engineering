@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page {
+    size: letter;
+    margin: 1in;
+  }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: #1a1a1a;
+  }
+  h1 {
+    font-size: 22pt;
+    margin-bottom: 0.1em;
+    border-bottom: 2px solid #333;
+    padding-bottom: 0.3em;
+  }
+  .subtitle {
+    font-size: 13pt;
+    color: #555;
+    margin-top: 0;
+    margin-bottom: 2em;
+  }
+  h2 {
+    font-size: 15pt;
+    margin-top: 1.5em;
+    color: #2a2a2a;
+  }
+  h3 {
+    font-size: 12pt;
+    margin-top: 1.2em;
+  }
+  code {
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 10pt;
+    background: #f0f0f4;
+    padding: 0.15em 0.35em;
+    border-radius: 3px;
+  }
+  pre {
+    background: #f0f0f4;
+    padding: 0.8em 1em;
+    border-radius: 5px;
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 10pt;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+  }
+  .callout {
+    background: #eef4ff;
+    border-left: 4px solid #3b82f6;
+    padding: 0.8em 1em;
+    margin: 1em 0;
+    border-radius: 0 5px 5px 0;
+  }
+  .callout-warn {
+    background: #fef9ee;
+    border-left: 4px solid #f59e0b;
+    padding: 0.8em 1em;
+    margin: 1em 0;
+    border-radius: 0 5px 5px 0;
+  }
+  .tier {
+    margin: 0.8em 0;
+    padding: 0.6em 1em;
+    border-radius: 5px;
+  }
+  .tier-bronze { background: #fdf2e9; border-left: 4px solid #cd7f32; }
+  .tier-silver { background: #f4f4f4; border-left: 4px solid #a0a0a0; }
+  .tier-gold   { background: #fef9e7; border-left: 4px solid #d4a017; }
+  ul { margin-top: 0.3em; }
+  ol > li { margin-bottom: 0.5em; }
+  .meta-table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+  .meta-table td { padding: 0.3em 0.8em; border: 1px solid #ddd; }
+  .meta-table td:first-child { font-weight: bold; background: #fafafa; width: 30%; }
+  .example-session { border-left: 3px solid #999; padding-left: 1em; margin: 1em 0; color: #333; }
+</style>
+</head>
+<body>
+
+<h1>Assignment 1: BBS</h1>
+<p class="subtitle">Software Engineering - UATX - Spring 2026</p>
+
+<table class="meta-table">
+  <tr><td>Due</td><td>One week after assigned</td></tr>
+  <tr><td>Estimated time</td><td>8-12 hours (with coding agent)</td></tr>
+  <tr><td>Prereqs</td><td>Lectures 2.1 (Files &amp; Data Formats) and 2.2 (Databases &amp; SQL)</td></tr>
+  <tr><td>Submit</td><td>Branch + PR on the class repo</td></tr>
+</table>
+
+<h2>Background</h2>
+
+<p>Before the World Wide Web, there were <strong>bulletin board systems</strong> (BBSes). Starting in the late 1970s, hobbyists ran BBS software on home computers connected to phone lines. You'd dial in with your modem, and you'd land on a text-based interface where you could read messages, post replies, and chat with other users. All through a terminal.</p>
+
+<p>BBSes were the internet before the internet. They had forums, file sharing, multiplayer games ("door games"), and thriving communities, all over a single phone line, one user at a time. At their peak in the mid-1990s there were an estimated 150,000 BBSes in North America alone.</p>
+
+<p>In this assignment, you'll build one. Yours will be simpler than the originals (no modem required), but the idea is the same: a terminal-based program where users can post messages, read what others have written, and interact through text.</p>
+
+<p>You'll build it twice. First using JSON files for storage, then upgrading to a real SQLite database. Then you'll write a migration script that bridges the two, and see firsthand why databases exist.</p>
+
+<h2>Part A: JSON File Storage</h2>
+
+<p>Build a command-line Python program called <code>bbs.py</code> that stores all data in a JSON file called <code>bbs.json</code>.</p>
+
+<h3>Required commands</h3>
+
+<pre>python bbs.py post &lt;username&gt; &lt;message&gt;     # Post a message
+python bbs.py read                          # Read all messages
+python bbs.py users                         # List all users who have posted
+python bbs.py search &lt;keyword&gt;              # Search posts by keyword</pre>
+
+<h3>Expected behavior</h3>
+
+<div class="example-session">
+<pre>$ python bbs.py post alice "Hello, is anyone out there?"
+Posted.
+
+$ python bbs.py post bob "Hey Alice! Welcome to the board."
+Posted.
+
+$ python bbs.py read
+[2026-03-24 14:01] alice: Hello, is anyone out there?
+[2026-03-24 14:03] bob: Hey Alice! Welcome to the board.
+
+$ python bbs.py users
+alice
+bob
+
+$ python bbs.py search "Hello"
+[2026-03-24 14:01] alice: Hello, is anyone out there?
+
+$ cat bbs.json
+[
+  {
+    "username": "alice",
+    "message": "Hello, is anyone out there?",
+    "timestamp": "2026-03-24T14:01:32"
+  },
+  ...
+]</pre>
+</div>
+
+<p>Your JSON structure doesn't have to match this example exactly. Design it however makes sense to you. The point is that you can <code>cat bbs.json</code> and see exactly what's stored. That's the beauty (and the limitation) of file-based storage.</p>
+
+<p>Notice that search requires loading the entire file and scanning every message. Keep that in mind for Part B.</p>
+
+<div class="callout">
+  <strong>Tip:</strong> Use Python's built-in <code>json</code> and <code>datetime</code> modules. Your coding agent can help with the file I/O, but focus on understanding the data structure you're designing.
+</div>
+
+<h2>Part B: SQLite Upgrade</h2>
+
+<p>Now build a second version called <code>bbs_db.py</code> that stores data in a SQLite database using <strong>SQLAlchemy with raw SQL</strong> (not the ORM).</p>
+
+<h3>Database schema</h3>
+
+<p>Design and create two tables:</p>
+
+<ul>
+  <li><strong><code>users</code></strong> - at minimum: an integer primary key and a unique username</li>
+  <li><strong><code>posts</code></strong> - at minimum: an integer primary key, a user ID that references the users table, the message text, and a timestamp</li>
+</ul>
+
+<p>Your program should create these tables automatically if they don't exist (i.e., on first run).</p>
+
+<h3>Required commands</h3>
+
+<p>Same as Part A:</p>
+
+<pre>python bbs_db.py post &lt;username&gt; &lt;message&gt;   # Post a message
+python bbs_db.py read                        # Read all messages
+python bbs_db.py users                       # List all users
+python bbs_db.py search &lt;keyword&gt;            # Search posts by keyword</pre>
+
+<h3>The search command</h3>
+
+<p>In your JSON version, search means loading the entire file and looping through every message. With SQL:</p>
+
+<pre>SELECT u.username, p.message, p.timestamp
+FROM posts p JOIN users u ON p.user_id = u.id
+WHERE p.message LIKE :keyword</pre>
+
+<p>One query. The database does the work.</p>
+
+<h3>Technical requirements</h3>
+
+<ul>
+  <li>Use <code>sqlalchemy</code> with <code>create_engine("sqlite:///bbs.db")</code></li>
+  <li>Use <code>text()</code> for all queries. Write real SQL, not ORM methods.</li>
+  <li>Use parameterized queries (<code>:param</code> syntax). Never f-string your SQL.</li>
+  <li>Create a <code>db.py</code> module that exports the engine and an <code>init_db()</code> function</li>
+</ul>
+
+<div class="callout-warn callout">
+  <strong>Never do this:</strong><br>
+  <code>f"SELECT * FROM posts WHERE message LIKE '%{keyword}%'"</code><br><br>
+  This is a <strong>SQL injection vulnerability</strong>. Always use parameterized queries. Your coding agent knows this, but if it generates string-interpolated SQL, that's a sign you should double-check its output.
+</div>
+
+<h2>Part C: Migration</h2>
+
+<p>Write a script called <code>migrate.py</code> that reads <code>bbs.json</code> and populates the SQLite database.</p>
+
+<pre>python migrate.py                # Reads bbs.json, writes to bbs.db</pre>
+
+<p>This is where the two halves of the assignment connect. Your flat JSON has usernames as strings on every post. Your database has a normalized <code>users</code> table with unique rows. The migration has to bridge that gap: extract the distinct users, create rows for them, then insert the posts with the correct user IDs. Timestamps from the JSON file should be preserved exactly.</p>
+
+<p>After a successful migration, <code>bbs_db.py read</code> should produce the same output as <code>bbs.py read</code> for the same data. Verify this yourself before submitting.</p>
+
+<div class="callout">
+  <strong>Think about edge cases.</strong> What if the same username appears in many posts? What if <code>bbs.db</code> already has data in it when you run the migration? Decide on a behavior and document it in your README.
+</div>
+
+<h2>README Requirements</h2>
+
+<p>Include a <code>README.md</code> that covers:</p>
+
+<ol>
+  <li>How to run your program (any setup steps, dependencies)</li>
+  <li>A short comparison (a paragraph or two) of how search works in your JSON version vs. your SQL version. What's different about the approach? What would happen if your BBS had a million posts?</li>
+  <li>What your <code>migrate.py</code> does if <code>bbs.db</code> already exists (does it wipe it? skip duplicates? error out?) and why you chose that behavior</li>
+  <li>If you've added features for silver/gold: what you added and why</li>
+</ol>
+
+<h2>What to Submit</h2>
+
+<ol>
+  <li>Create a branch: <code>git checkout -b bbs-&lt;your-github-username&gt;</code></li>
+  <li>Put your code in a directory: <code>assignments/bbs/&lt;your-github-username&gt;/</code></li>
+  <li>Push and open a PR titled "BBS - &lt;your-name&gt;"</li>
+</ol>
+
+<h2>Tiers</h2>
+
+<div class="tier tier-bronze">
+  <strong>Bronze</strong><br>
+  Parts A, B, and C working as described. JSON version stores and reads posts and supports search. SQLite version has <code>users</code> and <code>posts</code> tables, supports all four commands (<code>post</code>, <code>read</code>, <code>users</code>, <code>search</code>). Migration script correctly moves data from JSON to SQLite. README covers all required sections including the search comparison and migration behavior.
+</div>
+
+<div class="tier tier-silver">
+  <strong>Silver</strong><br>
+  Everything in Bronze, plus a meaningful feature that extends the BBS. Some ideas (pick one or invent your own):
+  <ul>
+    <li><strong>Topics/boards</strong> - posts belong to named boards (<code>python bbs_db.py post alice general "Hello!"</code>), with a command to list boards and read a specific one</li>
+    <li><strong>Threads</strong> - reply to a specific post by ID, display replies indented under the parent</li>
+    <li><strong>User profiles</strong> - a <code>profile</code> command that shows a user's join date, post count, and a short bio they can set</li>
+  </ul>
+  Include a brief explanation in your README of what you added and the schema changes it required.
+</div>
+
+<div class="tier tier-gold">
+  <strong>Gold</strong><br>
+  Everything in Silver, plus something that makes your BBS genuinely impressive. Build something you'd want to show off. Some ideas to get you started:
+  <ul>
+    <li>An ASCII art welcome screen and colored terminal output (look into ANSI escape codes or the <code>rich</code> library)</li>
+    <li>Private messages between users</li>
+    <li>An interactive mode: instead of one-shot commands, drop into a live session with a prompt (<code>bbs&gt;</code>) that keeps you "logged in"</li>
+    <li>A leaderboard, post reactions/upvotes, or a "trending" algorithm</li>
+    <li>Import/export: dump the database to JSON, or load a JSON file into the database</li>
+  </ul>
+  Surprise us. The best Gold submissions are the ones where we can tell you had fun building them.
+</div>
+
+<h2>A Note on Coding Agents</h2>
+
+<p>You're encouraged to use your coding agent throughout this assignment. That said: an agent can probably produce working code for most of this quickly. That's fine, but it means the code is the floor, not the ceiling.</p>
+
+<p>The real learning happens when you <em>direct</em> the agent toward something harder, debug the stuff it gets wrong, and make design decisions it can't make for you (like how to structure your threads table, or what "trending" means for your BBS). The README sections asking you to compare approaches and justify decisions are where you demonstrate understanding. Use the agent as a power tool, not an autopilot.</p>
+
+<h2>Grading</h2>
+
+<table class="meta-table">
+  <tr><td>Bronze</td><td>Satisfactory: you demonstrated the core skills</td></tr>
+  <tr><td>Silver</td><td>Good: you extended the design thoughtfully</td></tr>
+  <tr><td>Gold</td><td>Excellent: you built something impressive</td></tr>
+</table>
+
+</body>
+</html>

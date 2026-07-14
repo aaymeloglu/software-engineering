@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node (assignment/frontend material)
+node_modules/
+
+# Editor
+.idea/
+.vscode/
+
+# The grading harness keeps its own cohort-specific files out (grading/.gitignore),
+# but belt-and-suspenders: never commit a real cohort or student work.
+grading/config.yaml
+grading/roster.yaml
+grading/work/
+grading/reports/

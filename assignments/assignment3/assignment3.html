@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page {
+    size: letter;
+    margin: 1in;
+  }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: #1a1a1a;
+  }
+  h1 {
+    font-size: 22pt;
+    margin-bottom: 0.1em;
+    border-bottom: 2px solid #333;
+    padding-bottom: 0.3em;
+  }
+  .subtitle {
+    font-size: 13pt;
+    color: #555;
+    margin-top: 0;
+    margin-bottom: 2em;
+  }
+  h2 {
+    font-size: 15pt;
+    margin-top: 1.5em;
+    color: #2a2a2a;
+  }
+  h3 {
+    font-size: 12pt;
+    margin-top: 1.2em;
+  }
+  code {
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 10pt;
+    background: #f0f0f4;
+    padding: 0.15em 0.35em;
+    border-radius: 3px;
+  }
+  pre {
+    background: #f0f0f4;
+    padding: 0.8em 1em;
+    border-radius: 5px;
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 10pt;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+  }
+  .callout {
+    background: #eef4ff;
+    border-left: 4px solid #3b82f6;
+    padding: 0.8em 1em;
+    margin: 1em 0;
+    border-radius: 0 5px 5px 0;
+  }
+  .callout-warn {
+    background: #fef9ee;
+    border-left: 4px solid #f59e0b;
+    padding: 0.8em 1em;
+    margin: 1em 0;
+    border-radius: 0 5px 5px 0;
+  }
+  .callout-danger {
+    background: #fef2f2;
+    border-left: 4px solid #ef4444;
+    padding: 0.8em 1em;
+    margin: 1em 0;
+    border-radius: 0 5px 5px 0;
+  }
+  .tier {
+    margin: 0.8em 0;
+    padding: 0.6em 1em;
+    border-radius: 5px;
+  }
+  .tier-bronze { background: #fdf2e9; border-left: 4px solid #cd7f32; }
+  .tier-silver { background: #f4f4f4; border-left: 4px solid #a0a0a0; }
+  .tier-gold   { background: #fef9e7; border-left: 4px solid #d4a017; }
+  ul { margin-top: 0.3em; }
+  ol > li { margin-bottom: 0.5em; }
+  .meta-table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+  .meta-table td { padding: 0.3em 0.8em; border: 1px solid #ddd; }
+  .meta-table td:first-child { font-weight: bold; background: #fafafa; width: 30%; }
+</style>
+</head>
+<body>
+
+<h1>Assignment 3: Test-First Bug Hunt</h1>
+<p class="subtitle">Software Engineering - UATX - Spring 2026</p>
+
+<table class="meta-table">
+  <tr><td>Phase 1 due</td><td>Wednesday, April 29, 2026, 5:00pm - tests committed</td></tr>
+  <tr><td>Phase 2 due</td><td>Friday, May 1, 2026, 5:00pm - fixes committed</td></tr>
+  <tr><td>Estimated time</td><td>8-12 hours total across both phases</td></tr>
+  <tr><td>Prereqs</td><td>Lectures 4.1 (Testing Principles) and 4.2 (Practical Testing). A1 and A2 submitted.</td></tr>
+  <tr><td>Submit</td><td>Branch + PR, two tagged commits</td></tr>
+</table>
+
+<h2>Background</h2>
+
+<p>The previous two assignments were the kind of thing your coding agent can basically one-shot if you let it, and you'd never really know whether you learned anything. If I assigned "write tests for your A2 webserver," that would be the same deal - Claude reads your code, figures out what it does, writes tests, all done in ninety seconds. That's not useful to me as a teacher, and it's not useful to you as someone actually trying to internalize how testing fits into building software.</p>
+
+<p>So this one is different. I'm handing you three small Python modules as compiled bytecode. You can't read them, and your coding agent can't read them either. What you get instead is a written spec for each module, and your job is to write a test suite against the spec that runs against the opaque module. Wherever your tests fail, you've found a bug.</p>
+
+<p>This runs in two phases, and the order matters.</p>
+
+<p><strong>Phase 1</strong> is the test writing. You have the compiled modules and the specs and nothing else - no source, no bug list. You write tests, commit them, tag the commit before the Phase 1 deadline. If you let your agent try to peek at the bytecode or reverse-engineer what's in there, all you'll produce is tests that match what Claude *thinks* is going on, which is exactly the trap this assignment is designed to avoid. Stay in the spec.</p>
+
+<p><strong>Phase 2</strong> is the fix-up. Once Phase 1 closes, the buggy source gets released with every bug baked in, along with a catalog naming the labeled ones. You copy your tests forward unchanged, then push your coding agent to fix the source until every one of your tests passes. If your Phase 1 tests were thorough, this part is quick. If they weren't, there's a held-out reference test suite on the grading side that'll run against your fixed source and surface whatever bugs slipped through, and those points come off Phase 2.</p>
+
+<p>The whole point of doing it this way: a good test suite isn't something you tack onto finished code. It's the spec, written in a language the computer can check. You can't really show that in one phase, because if you had the source in front of you the whole time, your tests would just end up describing what the code happens to do rather than what it *should* do. Separating the phases forces the distinction.</p>
+
+<h2>Setup</h2>
+
+<p>The starter directory <code>starter/assignment3/</code> in the class repo holds everything you need to read and run against: compiled modules for each supported Python version, the three spec files, pytest requirements. You don't copy any of it into your submission. It stays where it is, and a shared <code>conftest.py</code> at <code>assignments/a3-testing/</code> wires the modules into your pytest sys.path automatically.</p>
+
+<p>Your submission directory only contains what you actually produce:</p>
+
+<pre>assignments/a3-testing/&lt;your-github-username&gt;/
+  phase1/
+    tests/
+      test_lru_cache.py
+      test_interval_merger.py
+      test_cart.py
+    README.md
+  # phase2/ added after the Phase 1 deadline, with your fixed src/ and same tests/</pre>
+
+<p>The compiled modules are version-locked to CPython bytecode, so you need 3.12, 3.13, or 3.14. The starter ships a bundle for each. If you're on anything else, the shared conftest refuses to load and tells you so, which is a much friendlier error than the cryptic "bad magic number" you'd otherwise get. Install one of the supported versions with <code>pyenv install 3.12</code> or <code>uv venv --python 3.12 .venv</code>.</p>
+
+<p>Install pytest from the starter's requirements file:</p>
+
+<pre>pip install -r starter/assignment3/requirements.txt</pre>
+
+<p>Now create your <code>phase1/tests/</code> directory and start writing tests. Each test file imports from the opaque module the way you'd expect:</p>
+
+<pre>from lru_cache import LRUCache
+from interval_merger import merge
+from cart import Cart</pre>
+
+<p>Run pytest from anywhere under your submission directory:</p>
+
+<pre>cd assignments/a3-testing/&lt;your-github-username&gt;/phase1
+pytest tests/ -v</pre>
+
+<p>With no environment variables set, the modules behave correctly per spec. That's how you check your tests actually pass against a clean implementation before you ship them. If your tests fail against the clean module, they're wrong, and they won't be scored.</p>
+
+<div class="callout-danger">
+  <strong>Do not decompile the .pyc files.</strong> Tools exist that'll hand your agent readable Python, and using one defeats the whole point of the assignment - the tests end up looking like they were written against a specific implementation rather than against the spec, and that's pretty obvious at grading time. Don't.
+</div>
+
+<h2>The three modules</h2>
+
+<p>Each module is small - one public class or function, a handful of methods, and a written spec broken into numbered clauses (C1, C2, ...). Read the full spec for each one in <code>starter/assignment3/specs/</code> before you write any tests. The numbered clauses are where the bugs live, so the more systematically you go through them, the better your coverage will be.</p>
+
+<h3><code>lru_cache</code></h3>
+
+<p>A cache is a data structure that holds a fixed number of key-value pairs, with some rule for what to throw out when it fills up. In an LRU cache (least-recently-used), the rule is: whichever entry you haven't touched in the longest gets evicted to make room for a new one. Both reading a key (<code>get</code>) and overwriting an existing key (<code>put</code>) count as "touching" it, so anything you've recently used stays in the cache and anything you've ignored ages out. It's the standard choice for things like "remember the last N database rows I looked up" because the stuff you just used is usually the stuff you're about to use again.</p>
+
+<p>This cache also supports an optional per-entry TTL (time-to-live), where an entry can be told to automatically expire a certain number of seconds after it was put in.</p>
+
+<pre>class LRUCache:
+    def __init__(self, capacity: int) -> None: ...
+    def put(self, key, value, ttl: float | None = None) -> None: ...
+    def get(self, key): ...                 # raises KeyError on missing or expired
+    def __len__(self) -> int: ...           # counts non-expired entries only</pre>
+
+<p>A few examples of how it should behave:</p>
+
+<pre>cache = LRUCache(capacity=3)
+cache.put("a", 1)
+cache.put("b", 2)
+cache.put("c", 3)
+cache.get("a")           # returns 1, and promotes "a" to most-recently-used
+cache.put("d", 4)        # cache was full; "b" is now the oldest, so "b" gets evicted
+cache.get("b")           # raises KeyError
+len(cache)               # 3
+
+cache.put("x", 99, ttl=0.5)   # "x" will expire 0.5 seconds after being put in
+time.sleep(1.0)
+cache.get("x")           # raises KeyError - expired
+len(cache)               # does not include "x"</pre>
+
+<p>Things you'll want to test: capacity validation, eviction when the cache is full, LRU ordering (remember that both <code>get</code> and <code>put</code> on an existing key count as uses for ordering purposes), TTL expiration on <code>get</code>, what happens when you re-put a key whose TTL was already set, and how <code>len()</code> treats entries whose TTL has passed but haven't been accessed yet.</p>
+
+<h3><code>interval_merger</code></h3>
+
+<p>You give it a list of integer ranges, it gives you back a cleaned-up list where any ranges that overlap or touch have been collapsed together. Think of use cases like "given a bunch of meeting-room reservations, what hours is the room actually booked end-to-end?" or "given a set of downloaded file chunks with start/end offsets, which contiguous byte ranges do I have?". You start with a messy overlapping set, you want the minimum set of non-overlapping ranges that covers the same integers.</p>
+
+<p>Ranges are closed on both ends - the pair <code>(a, b)</code> represents every integer from <code>a</code> through <code>b</code> inclusive.</p>
+
+<pre>def merge(intervals: list[tuple[int, int]]) -> list[tuple[int, int]]: ...</pre>
+
+<p>A few examples of how it should behave:</p>
+
+<pre>merge([(1, 3), (2, 6), (8, 10)])
+# returns [(1, 6), (8, 10)]
+# (1, 3) and (2, 6) overlap, so they collapse into (1, 6)
+# (8, 10) doesn't overlap with either, so it stays on its own
+
+merge([(1, 3), (3, 5)])
+# returns [(1, 5)]
+# endpoints touch at 3, which counts as "merging" for closed intervals
+
+merge([(1, 3), (4, 5)])
+# returns [(1, 3), (4, 5)]
+# 3 and 4 are adjacent but don't share any integer, so these stay separate
+
+merge([(5, 1)])
+# raises ValueError - start > end is not a valid interval
+
+merge([])
+# returns []</pre>
+
+<p>Things to test: what happens on reversed tuples like <code>(5, 3)</code>, merge semantics for touching endpoints, zero-length intervals like <code>(3, 3)</code>, empty input, output sort order when the input is out of order, and whether <code>merge</code> mutates its input list.</p>
+
+<h3><code>cart</code></h3>
+
+<p>A shopping cart. You add line items with a SKU, quantity, and unit price, optionally apply one or more promo codes, and then ask for the total. All prices are in integer cents - that's the standard way to avoid the floating-point-rounding weirdness you get when representing money as dollars-and-decimals. $10.50 is 1050, not 10.50.</p>
+
+<p>The interesting part is the promo codes. There are five of them, they stack in specific ways, they apply in a specific order, and they have boundary conditions. That's where the bugs live.</p>
+
+<pre>class Cart:
+    def __init__(self) -> None: ...
+    def add_item(self, sku: str, qty: int, unit_price_cents: int) -> None: ...
+    def apply_code(self, code: str) -> bool: ...    # True if accepted, False if rejected
+    def total_cents(self) -> int: ...</pre>
+
+<p>The five codes:</p>
+
+<ul>
+  <li><code>SAVE10</code> / <code>SAVE20</code> - percent off subtotal. Mutually exclusive - apply one and the other gets rejected.</li>
+  <li><code>FLAT5</code> - $5.00 (500 cents) off, applied AFTER any percent discount.</li>
+  <li><code>BOGO_BAGEL</code> - buy-one-get-one on the line item with SKU "bagel". <code>qty // 2</code> bagels are free.</li>
+  <li><code>FREESHIP</code> - waives the flat $5.00 shipping charge, but only when the pre-shipping total is at least $50.00.</li>
+</ul>
+
+<p>A few examples of how it should behave:</p>
+
+<pre>cart = Cart()
+cart.add_item("bagel", 2, 300)    # 2 bagels at $3.00 each
+cart.apply_code("BOGO_BAGEL")     # returns True - one of the two is free
+cart.total_cents()                # 300 (one paid) + 500 (shipping) = 800
+
+cart = Cart()
+cart.add_item("shirt", 1, 10000)  # one $100 shirt
+cart.apply_code("SAVE10")         # returns True
+cart.apply_code("SAVE20")         # returns False - percent codes don't stack
+cart.apply_code("FLAT5")          # returns True - stacks with SAVE10
+cart.total_cents()
+# subtotal 10000, minus 10% = 9000, minus flat $5 = 8500, plus $5 shipping = 9000
+
+cart = Cart()
+cart.add_item("widget", 1, 5000)  # exactly $50.00
+cart.apply_code("FREESHIP")       # returns True
+cart.total_cents()                # 5000 - shipping waived because >= $50.00
+
+cart = Cart()
+cart.total_cents()                # empty cart: 0 (no shipping, no anything)</pre>
+
+<p>Read the cart spec carefully. The stacking rules, the application order, the exact boundary at $50.00, and the rounding behavior on percent discounts are all specified precisely, and every one of them is a place a bug could be.</p>
+
+<h2>How the bugs work</h2>
+
+<p>Each module has between 6 and 8 seeded bugs. Every bug maps to a specific clause in that module's spec. You don't know the bug names, and you shouldn't try to guess them - the grading harness activates them one at a time via a <code>BUGS</code> environment variable that you don't control.</p>
+
+<p>For grading, the harness runs your tests many times. First with <code>BUGS=""</code>, where every one of your tests has to pass. If anything fails at this step, your tests are broken against the clean implementation, and the rest of your Phase 1 score doesn't apply. Then it runs your tests once per seeded bug, with that bug switched on, and if at least one of your tests fails while the bug is active, you caught it.</p>
+
+<p>There are twenty labeled bugs across the three modules, plus three hidden ones that count toward gold. The labeled bugs are what a careful reader of the spec would notice going clause by clause. The hidden ones are edge cases the spec implies but doesn't spell out, the kind of thing a rigorous tester finds by asking "wait, what about..." and writing the test.</p>
+
+<p>The full catalog of the twenty labeled bugs gets published when Phase 1 closes. You don't need it to do well in Phase 1; you need it to orient yourself for Phase 2.</p>
+
+<h2>Phase 1: write tests</h2>
+
+<p>Your <code>phase1/</code> directory when you're done:</p>
+
+<pre>phase1/
+  tests/
+    test_lru_cache.py
+    test_interval_merger.py
+    test_cart.py
+  README.md</pre>
+
+<p>I'd strongly encourage you to organize tests clause by clause. A test named <code>test_c3_touching_endpoints_merge</code> is doing more work for you than one named <code>test_merge_bug_6</code> - the clause-style name forces you to go back to the spec and ask what behavior you're pinning down, whereas the other one is really just a tag. Use pytest conventions you already know: <code>assert</code>, <code>pytest.raises</code>, parametrize where it tightens things up. For TTL tests, use short real sleeps in the tens of milliseconds. Don't reach for mocking the clock here - that's a different skill, and it's not what this assignment is about.</p>
+
+<p>The README should be short, 200 to 400 words, covering:</p>
+<ol>
+  <li><strong>Approach.</strong> How did you read the spec? Clause by clause, or more intuitively? What did you use your coding agent for, and what did you deliberately not use it for?</li>
+  <li><strong>Coverage map.</strong> For each module, a bulleted list of the behaviors you tested. Makes it pretty obvious whether you were systematic.</li>
+  <li><strong>Edge cases you invented.</strong> The tests that aren't just the obvious happy path. This is where the gold points live, so if you did something clever here, call it out.</li>
+  <li><strong>What was easy, what was hard.</strong> Testing for the <em>absence</em> of behavior - like "this function doesn't mutate its input" - is a real step up from testing that something happens. Did that show up for you? What else was trickier than you expected?</li>
+</ol>
+
+<p>Commit and tag:</p>
+
+<pre>git tag phase-1-submit-&lt;your-github-username&gt;
+git push origin phase-1-submit-&lt;your-github-username&gt;</pre>
+
+<p>Any commits to <code>phase1/</code> made after the tag timestamp get ignored by the harness, so don't rely on them.</p>
+
+<h2>Phase 2: fix the bugs</h2>
+
+<p>When Phase 1 closes, two things land under <code>starter/assignment3/phase2/</code>: the buggy source for all three modules (every bug active, no toggles) and a catalog naming all twenty labeled bugs. Copy the source files into your submission and create your phase2 layout:</p>
+
+<pre>phase2/
+  conftest.py             # 4-line template provided at starter/assignment3/phase2/conftest_template.py
+  src/
+    lru_cache.py          # copied from starter, all bugs active - you will fix
+    interval_merger.py    # same
+    cart.py               # same
+  tests/                  # COPY from phase1/tests/ UNCHANGED
+  README.md               # YOU create</pre>
+
+<p>The phase2 <code>conftest.py</code> is different from the parent one at <code>assignments/a3-testing/</code> - it points pytest at your own <code>src/</code> instead of the starter's compiled modules. That's how your tests end up running against the code you're fixing instead of the opaque .pyc.</p>
+
+<div class="callout-warn">
+  <strong><code>phase2/tests/</code> has to match <code>phase1/tests/</code> byte-for-byte.</strong> The harness runs <code>diff phase1/tests phase2/tests</code> and zeroes your Phase 2 score if anything differs. You don't get to add tests after you see the source; that's the whole deal. If you find yourself wanting to, you're working on the wrong thing. Go fix the source instead.
+</div>
+
+<p>Run your tests against the buggy source. Most of them will fail, ideally at least one per labeled bug you caught. This is where your coding agent earns its keep - hand it a failing test along with the relevant source, it proposes a fix, you confirm the test goes green, move on. Trust your Phase 1 tests here.</p>
+
+<p>When you submit, the grading harness runs a held-out reference test suite against your fixed source. This suite catches every labeled bug and the three hidden ones. If your Phase 1 coverage was weak, the bugs that fell through the cracks are still there in your fixed source, and the reference suite will find them. That's the feedback loop.</p>
+
+<p>Phase 2 README is shorter, 150 to 300 words:</p>
+<ol>
+  <li><strong>What your tests caught vs. missed.</strong> Now that you have the catalog, which labeled bugs did your Phase 1 suite actually fail on when the bug was active? Which ones did it miss?</li>
+  <li><strong>Fix process.</strong> How did you drive your coding agent through the fixes - one bug at a time, all at once, some other pattern? What worked?</li>
+  <li><strong>Surprises.</strong> Did the reference suite find anything after you thought you were done? What did that teach you about your Phase 1 tests?</li>
+</ol>
+
+<p>Commit and tag:</p>
+
+<pre>git tag phase-2-submit-&lt;your-github-username&gt;
+git push origin phase-2-submit-&lt;your-github-username&gt;</pre>
+
+<h2>Tiers</h2>
+
+<div class="tier tier-bronze">
+  <strong>Bronze.</strong> Phase 1 catches at least 12 of the 20 labeled bugs. Clean run (<code>BUGS=""</code>) passes every test. Phase 2 fixes pass your own tests. Both READMEs in. You get here by going through the spec clause by clause with reasonable coverage.
+</div>
+
+<div class="tier tier-silver">
+  <strong>Silver.</strong> Phase 1 catches at least 16 labeled bugs, and that includes tests for things the spec implies but doesn't call out explicitly - input mutation, empty-collection cases, exact-boundary values. Phase 2 reference suite passes on 18 or more of the 20 labeled bugs. At least one hidden bug caught. README shows you were testing past what the spec spelled out for you.
+</div>
+
+<div class="tier tier-gold">
+  <strong>Gold.</strong> Phase 1 catches 18 or more labeled bugs and at least 2 of the 3 hidden ones. Phase 2 reference suite passes fully. Tests are parametrized where it helps, named like the spec clauses they're pinning down, and the README reads like someone who was thinking about the spec on its own terms rather than treating it as a scavenger hunt against a hidden bug list.
+</div>
+
+<h2>Grading</h2>
+
+<p>50 points, split roughly:</p>
+
+<table class="meta-table">
+  <tr><td>Phase 1: tests</td><td>30 points. Clean-run gate, labeled bug catches, test quality, coverage breadth.</td></tr>
+  <tr><td>Phase 2: fixes</td><td>15 points. Tests-unchanged gate, your own tests pass, reference suite passes, fix cleanliness.</td></tr>
+  <tr><td>Gold</td><td>5 points. Hidden bug catches.</td></tr>
+</table>
+
+<h2>A note on coding agents</h2>
+
+<p>Phase 1 is where the two-phase structure actually matters. Use your coding agent to help you *read the spec* - paste a clause, ask what behaviors it implies, ask for edge cases around it. That's fair game, because the agent is working from the same information you are. What's not fair game is asking the agent to peek at the .pyc, or to guess at the implementation from behind the bytecode wall, or to produce tests that happen to trip bugs you haven't articulated yet. If you catch yourself doing that, stop and go back to the spec.</p>
+
+<p>Phase 2 is the opposite situation. You've got failing tests, you've got source, you've got a bug catalog. Push your agent through the fixes. This is the normal working mode for an engineer using an agent day to day. If you find yourself in Phase 2 wanting to add tests because something feels off, don't - go fix the source instead. Adding tests in Phase 2 zeros that whole phase.</p>
+
+<h2>What to submit</h2>
+
+<ol>
+  <li>Create a branch: <code>git checkout -b a3-testing-&lt;your-github-username&gt;</code></li>
+  <li>Put your work in <code>assignments/a3-testing/&lt;your-github-username&gt;/</code></li>
+  <li>Phase 1: commit your <code>phase1/</code> tree, tag <code>phase-1-submit-&lt;your-github-username&gt;</code>, push the tag.</li>
+  <li>Phase 2: commit your <code>phase2/</code> tree, tag <code>phase-2-submit-&lt;your-github-username&gt;</code>, push the tag.</li>
+  <li>Open a PR titled "A3 Testing - &lt;your-name&gt;" once Phase 2 is in.</li>
+</ol>
+
+</body>
+</html>

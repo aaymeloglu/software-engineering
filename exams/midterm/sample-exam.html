@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page {
+    size: letter;
+    margin: 0.85in 0.9in 0.9in 0.9in;
+  }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.45;
+    color: #111;
+  }
+  h1 {
+    font-size: 22pt;
+    margin: 0 0 0.1em 0;
+    border-bottom: 2px solid #333;
+    padding-bottom: 0.25em;
+  }
+  .subtitle {
+    font-size: 12pt;
+    color: #555;
+    margin-top: 0.2em;
+    margin-bottom: 1.4em;
+  }
+  h2 { font-size: 14pt; margin: 0; }
+  h3 {
+    font-size: 11pt;
+    margin: 1.1em 0 0.3em 0;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #333;
+  }
+  code {
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 9.8pt;
+    background: #f1f1f4;
+    padding: 0.08em 0.3em;
+    border-radius: 3px;
+  }
+  pre {
+    background: #f1f1f4;
+    padding: 0.6em 0.85em;
+    border-radius: 4px;
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 9.3pt;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    margin: 0.5em 0;
+  }
+  .meta-table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 10.5pt; }
+  .meta-table td { padding: 0.4em 0.7em; border: 1px solid #ddd; vertical-align: top; }
+  .meta-table td:first-child { font-weight: bold; background: #fafafa; width: 28%; }
+
+  .question {
+    page-break-before: always;
+    page-break-after: always;
+  }
+  .q-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.3em;
+    margin-bottom: 0.7em;
+  }
+  .q-header .q-id { font-size: 14pt; font-weight: bold; }
+  .q-header .q-meta { font-size: 10pt; color: #555; }
+  .q-stem ol, .q-stem ul {
+    margin: 0.5em 0 0.5em 1.2em;
+    padding-left: 0.7em;
+  }
+  .q-stem ol > li { margin-bottom: 0.4em; }
+  .q-stem ul > li { margin-bottom: 0.3em; }
+  .lines {
+    margin-top: 1em;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================== -->
+<!-- COVER                                                          -->
+<!-- ============================================================== -->
+
+<h1>Midterm &mdash; Sample Exam</h1>
+<p class="subtitle">Software Engineering &mdash; UATX &mdash; Spring 2026</p>
+
+<table class="meta-table">
+  <tr><td>Format</td><td>Pencil and paper. No computer, phone, notes, or coding agent.</td></tr>
+  <tr><td>Time</td><td>75 minutes (one class).</td></tr>
+  <tr><td>Length</td><td>Five questions, one from each category, weighted equally.</td></tr>
+  <tr><td>Coverage</td><td>Material from weeks 1&ndash;4, plus assignments 1, 2, and 3.</td></tr>
+  <tr><td>Categories</td><td>Trace-through, spot the bug, specification, code review, short design.</td></tr>
+  <tr><td>Grading</td><td>Curved. The exam is intentionally hard; expect to leave some parts unfinished.</td></tr>
+</table>
+
+<h3>How this exam thinks about agents</h3>
+
+<p>The whole semester has leaned into coding agents as the way real engineers work, so an exam that asks you to write working code from scratch on paper would punish you for taking the course seriously. Instead, every question is built around a skill the agent can't do for you: reading code carefully, finding bugs by inspection, writing the spec you'd hand to the agent, judging which of two implementations is better, and making design calls under uncertainty.</p>
+
+<h3>How to use this sample</h3>
+
+<p>This is a representative exam, not the actual one &mdash; the real exam will have five questions in the same five categories at roughly the same difficulty. Solutions are in a separate document; try the questions cold first, then check.</p>
+
+
+<!-- ============================================================== -->
+<!-- Q1 (was 1B)                                                    -->
+<!-- ============================================================== -->
+
+<div class="question">
+<div class="q-header">
+  <span class="q-id">Question 1</span>
+  <span class="q-meta">Trace-through</span>
+</div>
+
+<div class="q-stem">
+
+<p>The following module backs a tiny note-taking CLI by storing notes as JSON. Assume <code>notes.json</code> does not exist before this script runs.</p>
+
+<pre>import json
+from pathlib import Path
+
+LOG = Path("notes.json")
+
+def load() -&gt; list:
+    if not LOG.exists():
+        return []
+    return json.loads(LOG.read_text())
+
+def save(data: list) -&gt; None:
+    LOG.write_text(json.dumps(data))
+
+def add(text: str) -&gt; None:
+    data = load()
+    data.append({"text": text, "done": False})
+    save(data)</pre>
+
+<p>The following script then runs:</p>
+
+<pre>add("a")
+add("b")
+print("A:", len(load()))                            # ___
+
+x = load()
+x.append({"text": "c", "done": False})
+print("B:", len(load()))                            # ___
+
+save(x)
+print("C:", len(load()))                            # ___
+
+y = load()
+y[0]["done"] = True
+add("d")
+print("D:", load()[0]["done"])                       # ___
+
+print("E:", [t["text"] for t in load()])            # ___</pre>
+
+<p>Predict the value printed for each of A, B, C, D, E. For B and D, write one short sentence each explaining <em>why</em>.</p>
+
+</div>
+
+<div class="lines" style="height: 4.5in;">&nbsp;</div>
+</div>
+
+
+<!-- ============================================================== -->
+<!-- Q2 (was 2A)                                                    -->
+<!-- ============================================================== -->
+
+<div class="question">
+<div class="q-header">
+  <span class="q-id">Question 2</span>
+  <span class="q-meta">Spot the bug</span>
+</div>
+
+<div class="q-stem">
+
+<p>Your coding agent produced this FastAPI endpoint for listing posts in a forum app. The endpoint passes the obvious tests &mdash; <code>GET /api/posts</code> returns recent posts, <code>GET /api/posts?q=hello</code> returns posts whose body contains "hello", <code>GET /api/posts?q=hi&amp;limit=10&amp;page=2</code> returns the second page of ten matches.</p>
+
+<pre>import os
+from fastapi import FastAPI
+from sqlalchemy import create_engine, text
+
+app = FastAPI()
+engine = create_engine(os.environ.get("DB_URL", "sqlite:///forum.db"))
+
+@app.get("/api/posts")
+def list_posts(q: str = "", limit: int = 50, page: int = 1):
+    offset = (page - 1) * limit
+    if q:
+        sql = "SELECT id, author, body FROM posts WHERE body LIKE '%" + q + "%'"
+        sql += f" ORDER BY id DESC LIMIT {limit} OFFSET {offset}"
+    else:
+        sql = (f"SELECT id, author, body FROM posts "
+               f"ORDER BY id DESC LIMIT {limit} OFFSET {offset}")
+    with engine.connect() as conn:
+        rows = conn.execute(text(sql)).all()
+    return [{"id": r.id, "author": r.author, "body": r.body} for r in rows]</pre>
+
+<p>This endpoint has <strong>at least four distinct defects</strong> &mdash; some are security holes, some are correctness issues, some are availability issues. Find as many as you can. For <em>each</em> defect:</p>
+
+<ul>
+  <li>(a) Give one concrete value of <code>q</code>, <code>limit</code>, or <code>page</code> (or combination) that triggers it.</li>
+  <li>(b) In one sentence, describe what goes wrong.</li>
+  <li>(c) In one line, describe the fix.</li>
+</ul>
+
+<p>Format as a numbered list, one defect per entry. Two findings that are really the same root cause count once.</p>
+
+</div>
+
+<div class="lines" style="height: 7in;">&nbsp;</div>
+</div>
+
+
+<!-- ============================================================== -->
+<!-- Q3 (was 3B, refuse-to-spec bullet removed)                     -->
+<!-- ============================================================== -->
+
+<div class="question">
+<div class="q-header">
+  <span class="q-id">Question 3</span>
+  <span class="q-meta">Specification</span>
+</div>
+
+<div class="q-stem">
+
+<p>You're adding photo albums and shareable links to a photo gallery web app. Users can:</p>
+
+<ul>
+  <li>create a named album, and add or remove photos to it,</li>
+  <li>generate a public shareable link to an album (anyone with the link can view, no login required),</li>
+  <li>revoke a share link (the URL stops working),</li>
+  <li>see a list of their own albums.</li>
+</ul>
+
+<p>Authentication is already handled. Assume the caller's identity is available via an <code>X-Username</code> header.</p>
+
+<p>Spec the REST API. Cover:</p>
+
+<ul>
+  <li>Every endpoint you'd add: HTTP method, URL, request body, response body, status codes for success and the obvious failure modes.</li>
+  <li>For at least one of your endpoints, whether it is idempotent, and why that matters.</li>
+  <li>One design call that's not obvious, with one sentence on why.</li>
+</ul>
+
+</div>
+
+<div class="lines" style="height: 4.5in;">&nbsp;</div>
+</div>
+
+
+<!-- ============================================================== -->
+<!-- Q4 (was 4C, in Python)                                         -->
+<!-- ============================================================== -->
+
+<div class="question">
+<div class="q-header">
+  <span class="q-id">Question 4</span>
+  <span class="q-meta">Code review</span>
+</div>
+
+<div class="q-stem">
+
+<p>Two implementations of the same function. Both are intended to return a new list of items flagged as expired (timestamp older than the cutoff), with an <code>expired: True</code> key added to each &mdash; leaving the original input list untouched.</p>
+
+<p><strong>Version A:</strong></p>
+<pre>def flag_expired(items, cutoff):
+    result = []
+    for i in range(len(items)):
+        if items[i]["timestamp"] &lt; cutoff:
+            items[i]["expired"] = True
+            result.append(items[i])
+    return result</pre>
+
+<p><strong>Version B:</strong></p>
+<pre>def flag_expired(items, cutoff):
+    return [
+        {**item, "expired": True}
+        for item in items
+        if item["timestamp"] &lt; cutoff
+    ]</pre>
+
+<p>Pick one. Justify in three to five sentences, and call out anything that's actually broken in either version.</p>
+
+</div>
+
+<div class="lines" style="height: 4.5in;">&nbsp;</div>
+</div>
+
+
+<!-- ============================================================== -->
+<!-- Q5 (was 5B)                                                    -->
+<!-- ============================================================== -->
+
+<div class="question">
+<div class="q-header">
+  <span class="q-id">Question 5</span>
+  <span class="q-meta">Short design</span>
+</div>
+
+<div class="q-stem">
+
+<p>Your e-commerce app's mobile client lives on flaky cell networks. When a user taps "place order" and the request times out, the client retries automatically. You're designing two endpoints: <code>POST /api/orders</code> (place an order, charges payment, decrements inventory) and <code>PATCH /api/orders/{id}/shipping</code> (update the shipping address before the order ships).</p>
+
+<p>Which of these endpoints is idempotent under retry, and which one isn't? For the one that isn't, sketch one specific design move you could make so a retry doesn't double-charge or double-decrement. One paragraph total.</p>
+
+</div>
+
+<div class="lines" style="height: 5in;">&nbsp;</div>
+</div>
+
+</body>
+</html>

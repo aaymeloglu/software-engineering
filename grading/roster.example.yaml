@@ -1,0 +1,28 @@
+# Roster - PUBLIC TEMPLATE with fake data.
+#
+# Copy to `roster.yaml` (gitignored) and fill in your real cohort. The harness
+# matches submissions to students by `github` handle; name/email are only used
+# to label reports.
+#
+# `source` documents how you resolved the handle -> person mapping (PR title,
+# commit metadata, direct from the student). `notes` carries anything the
+# harness or you need to remember (extensions, nonstandard layouts).
+
+students:
+  - github: octocat
+    name: Ada Example
+    personal_email: ada@example.edu
+    source: pr_title + commit_metadata
+    notes: ""
+
+  - github: student-two
+    name: Grace Sample
+    personal_email: grace@example.edu
+    source: andy_direct
+    notes: "A3 Phase-1 extension granted (deadline 2026-01-15). Don't flag as late."
+
+  - github: student-three
+    name: Alan Placeholder
+    personal_email: ""
+    source: branch
+    notes: "Committed from a laptop hostname (no real email in git metadata)."
