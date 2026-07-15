@@ -21,3 +21,6 @@ grading/config.yaml
 grading/roster.yaml
 grading/work/
 grading/reports/
+
+# PowerPoint lock files
+~$*.pptx
